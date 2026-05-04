@@ -4,13 +4,15 @@
 
 Project name: diffusion-prior-based footwear 3D reconstruction demo.
 
-Core goal: build a local research demo that reconstructs a shoe 3D model from a single-view or three-view shoe sketch/image. The first deliverable must run on the current RTX 4060 Laptop GPU with 8GB VRAM, export a usable GLB/OBJ mesh, and provide an inspectable UI for the graduation project.
+Core goal: build a local research demo that reconstructs a shoe 3D model from a single-view or three-view designer shoe sketch. The first deliverable must run on the current RTX 4060 Laptop GPU with 8GB VRAM, export a usable GLB/OBJ mesh, and provide an inspectable UI for the graduation project.
+
+The formal project input is a designer sketch, not a general product photo. Product photos may still be used as baseline smoke-test inputs for validating image-to-3D backends, but they do not represent the final task setting.
 
 The project route is updated from a TRELLIS-dominant pipeline to:
 
 1. **Stable Fast 3D (SF3D) baseline**: primary MVP path for single-image-to-GLB generation on 8GB VRAM.
 2. **Hunyuan3D fine-tune candidate**: research path for higher-quality shape generation and possible shoe-domain adaptation.
-3. **ControlNet sketch-domain adaptation**: convert shoe sketches, Canny edges, or three-view drawings into more model-friendly rendered shoe images.
+3. **ControlNet sketch-domain adaptation**: convert single-view or three-view designer shoe sketches into more model-friendly rendered shoe images.
 
 TRELLIS is no longer the primary runtime path because local testing showed that the official `microsoft/TRELLIS-image-large` pipeline can load and produce Gaussian output on 8GB VRAM, but mesh extraction runs out of memory.
 
@@ -23,6 +25,14 @@ TRELLIS is no longer the primary runtime path because local testing showed that 
 - `xformers==0.0.27.post2` import and CUDA attention smoke test passed.
 - `StableDiffusionControlNetPipeline` minimal import passed.
 - TRELLIS import passed, but TRELLIS mesh generation is not reliable on this GPU.
+- SF3D baseline has generated readable GLB output from an official sample and a public shoe image within the 8GB VRAM limit.
+
+## User Review Findings
+
+- Future tests should use single-view or three-view designer shoe sketches as the primary input type.
+- The SF3D product-image baseline is visually acceptable for exterior shoe shape, but it does not reliably reconstruct reasonable internal shoe structure.
+- Internal shoe structure is a core technical difficulty because it involves invisible geometry completion from limited visual evidence.
+- The paper and demo should present internal structure as a limitation/research challenge, not as a solved capability of the MVP.
 
 ## Key References
 
@@ -41,7 +51,7 @@ Recommended first implementation: Gradio Blocks.
 
 Inputs:
 
-- Single-view shoe sketch/image.
+- Single-view designer shoe sketch.
 - Optional three-view input: front, side, top or outsole view.
 - Prompt and negative prompt fields for ControlNet rendering.
 - Backend selector: `sf3d`, `hunyuan3d_candidate`, `trellis_experimental`.
@@ -57,8 +67,8 @@ Outputs:
 
 Responsibilities:
 
-- Normalize uploaded shoe images to consistent background, crop, aspect ratio, and resolution.
-- Convert sketches to Canny or scribble control maps.
+- Normalize uploaded shoe sketches to consistent background, crop, aspect ratio, and resolution.
+- Convert designer sketches to Canny or scribble control maps.
 - For three-view input, keep each view independently inspectable and prepare a fused prompt/context package for downstream models.
 
 This layer is important because the graduation topic focuses on single-view and multi-view shoe reconstruction. Even if the first baseline model is single-image-to-3D, the UI and data structure should already preserve the three-view path.
@@ -96,6 +106,7 @@ Risks:
 
 - Model access may require Hugging Face approval/login.
 - Fine-tuning support is not the clearest path, so SF3D should be treated mainly as the baseline and demo backend.
+- SF3D can produce plausible exterior shape from shoe images, but internal shoe structure may be geometrically unreasonable because single-view image-to-3D cannot observe hidden regions.
 
 #### Research Candidate: Hunyuan3D
 
@@ -141,6 +152,7 @@ Responsibilities:
 - Apply conservative smoothing, decimation, and mesh cleanup.
 - Preserve shoe silhouette and important design details.
 - Export GLB for UI preview and OBJ for optional downstream inspection.
+- Detect and report obvious mesh issues such as empty geometry, broken exports, or extreme internal artifacts when possible.
 
 Non-goal for MVP:
 
@@ -150,7 +162,7 @@ Non-goal for MVP:
 
 ### Single-view MVP Flow
 
-1. User uploads one shoe sketch or image.
+1. User uploads one designer shoe sketch.
 2. Preprocessing normalizes crop, background, and control map.
 3. ControlNet optionally generates a clean shoe render.
 4. SF3D generates a textured GLB.
@@ -173,6 +185,7 @@ Metrics and qualitative checks:
 - GLB/OBJ export integrity.
 - Shoe silhouette consistency with input sketch/view.
 - Visual plausibility of upper, sole, heel, toe box, and outsole shape.
+- Explicit review of internal shoe geometry and hidden-region artifacts.
 - If ground-truth meshes become available: Chamfer Distance and normal consistency.
 - Runtime and peak VRAM per backend.
 
@@ -186,7 +199,7 @@ Metrics and qualitative checks:
 
 ## Current Open Decisions
 
-- Whether to request/access Stable Fast 3D gated weights on Hugging Face.
 - Whether Hunyuan3D evaluation should start from `Hunyuan3D-2mini`, `Hunyuan3D-2mv`, or `Hunyuan3D-2.1`.
 - Whether the first UI supports three-view upload immediately or starts with single-view and adds three-view in the next phase.
 - How much shoe-specific dataset preparation is expected for the graduation deliverable.
+- How to define an acceptable internal-structure quality threshold for the MVP.

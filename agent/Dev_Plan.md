@@ -8,7 +8,13 @@ The route is updated from a TRELLIS-dominant system to:
 
 1. **SF3D baseline** for reliable local single-image-to-GLB delivery.
 2. **Hunyuan3D fine-tune candidate** for research value and possible shoe-domain adaptation.
-3. **ControlNet sketch-domain adaptation** to bridge sketch inputs and image-to-3D model expectations.
+3. **ControlNet sketch-domain adaptation** to bridge designer sketch inputs and image-to-3D model expectations.
+
+Primary input definition:
+
+- The formal project input is a single-view or three-view designer shoe sketch.
+- Product photos are only baseline smoke-test inputs for validating image-to-3D backends.
+- Future tests should prioritize sketch inputs because they match the thesis target more closely.
 
 ## Phase 0 - Documentation and Route Review
 
@@ -62,7 +68,7 @@ Status: completed and passed for baseline feasibility.
 
 Goal:
 
-- Prove that Stable Fast 3D can generate a usable shoe GLB locally from a single image.
+- Prove that Stable Fast 3D can generate a usable shoe GLB locally from a single image, before adapting the pipeline to designer sketches.
 
 Tasks:
 
@@ -86,6 +92,8 @@ Verified Results:
 - Public shoe image generated a readable GLB.
 - Shoe test peak GPU memory reported by SF3D: `6172.10009765625 MB`.
 - Shoe test mesh validation: 1 geometry, `18572` vertices, `28956` faces.
+- Human visual review: exterior shoe form is basically acceptable as a baseline.
+- Human visual review: internal shoe structure is not reasonable enough and should be treated as a core technical difficulty.
 
 Success criteria:
 
@@ -95,33 +103,40 @@ Success criteria:
 
 Human Checkpoint:
 
-- Completed. SF3D is accepted as the default MVP 3D backend unless later shoe cases reveal unacceptable visual quality.
+- Completed. SF3D is accepted as the default MVP 3D backend for exterior baseline generation.
+- Important limitation: SF3D product-image success does not mean the final designer-sketch task is solved.
+- Important limitation: internal shoe geometry remains an unresolved hidden-structure reconstruction problem.
 
-## Phase 3 - ControlNet Sketch-Domain Adaptation
+## Phase 3 - Designer Sketch-Domain Adaptation
 
 Goal:
 
-- Convert shoe sketches or three-view drawings into cleaner rendered shoe images that are easier for SF3D/Hunyuan3D to reconstruct.
+- Convert single-view or three-view designer shoe sketches into cleaner rendered shoe images that are easier for SF3D/Hunyuan3D to reconstruct.
+- Establish the first real task-aligned test path for sketch input rather than product-photo input.
 
 Tasks:
 
+- Prepare or collect at least one single-view designer shoe sketch and, if available, one three-view sketch set.
 - Decide first ControlNet mode: Canny or Scribble.
 - Implement sketch preprocessing: crop, background cleanup, edge extraction, and resizing.
 - Build a minimal ControlNet inference script.
 - Test single-view sketch to rendered shoe image.
 - Test three-view sketch normalization without forcing 3D generation yet.
+- Compare direct sketch/SF3D behavior against ControlNet-rendered/SF3D behavior if technically possible.
 
 Tests:
 
 - `StableDiffusionControlNetPipeline` full initialization test.
 - One local sketch-to-render inference.
 - Compare original sketch, control map, and generated render.
+- Record whether the rendered output preserves shoe silhouette, sole, upper, toe box, heel, and key design lines.
 
 Success criteria:
 
 - Output render keeps the shoe silhouette and key features.
 - Pipeline can run without breaking the SF3D environment.
 - We have a clear prompt/control strategy for shoes.
+- We can decide whether ControlNet improves SF3D input quality compared with raw sketches.
 
 Human Checkpoint:
 
@@ -131,7 +146,7 @@ Human Checkpoint:
 
 Goal:
 
-- Connect preprocessing, optional ControlNet rendering, SF3D reconstruction, post-processing, and GLB preview.
+- Connect designer-sketch preprocessing, optional ControlNet rendering, SF3D reconstruction, post-processing, and GLB preview.
 
 Tasks:
 
@@ -147,14 +162,15 @@ Tasks:
 
 Tests:
 
-- Single-view end-to-end CLI smoke test.
-- Shoe sample end-to-end GLB generation.
+- Single-view designer sketch end-to-end CLI smoke test.
+- Shoe sketch sample end-to-end GLB generation.
 - Verify intermediate image outputs are saved.
 - Verify final GLB loads.
+- Record exterior shape quality and internal-structure artifacts separately.
 
 Success criteria:
 
-- One command can convert an input shoe image/sketch into a GLB.
+- One command can convert an input designer shoe sketch into a GLB.
 - Failure states are understandable and recoverable.
 
 Human Checkpoint:
@@ -212,12 +228,14 @@ Tasks:
 - Add optional decimation or mesh cleanup.
 - Preserve original and processed outputs for comparison.
 - Export final GLB as the UI default.
+- Add basic inspection/reporting for internal mesh artifacts where feasible.
 
 Tests:
 
 - Compare before/after mesh visually.
 - Verify final GLB still loads in browser.
 - Ensure post-processing does not remove key shoe components.
+- Note that post-processing may reduce artifacts but cannot fully solve unobserved internal geometry.
 
 Human Checkpoint:
 
@@ -233,7 +251,7 @@ Tasks:
 
 - Build a focused Gradio Blocks app.
 - Inputs:
-  - single-view upload
+  - single-view designer sketch upload
   - optional three-view upload slots
   - prompt and backend settings
 - Outputs:
@@ -268,7 +286,9 @@ Tasks:
   - SF3D baseline
   - Hunyuan3D candidate result if feasible
   - TRELLIS experimental result if useful
+- Separate exterior-shape evaluation from internal-structure evaluation.
 - Summarize why full CAD/NURBS reconstruction is future work.
+- Summarize why hidden internal shoe geometry is a limitation of single-view reconstruction.
 
 Tests:
 
@@ -287,6 +307,7 @@ Human Checkpoint:
 | Hunyuan3D-2.1 VRAM exceeds 8GB | Fine-tuning may be impossible locally | Evaluate 2mini/2mv first; move fine-tuning to cloud or limit fine-tuning to ControlNet |
 | TRELLIS mesh OOM | Original architecture cannot deliver GLB locally | Demote TRELLIS to experimental comparison only |
 | Sketch-to-render output changes shoe structure | 3D result may drift from input design | Keep control maps, use conservative prompts, compare against original sketch |
+| Internal shoe structure is unreasonable | Exterior may look acceptable while hidden geometry is implausible | Treat as hidden-geometry completion limitation; use three-view constraints where possible; document clearly in paper |
 | Three-view fusion is too large for MVP | Schedule risk | Implement three-view upload/preprocessing first; use multi-view 3D only after baseline works |
 | CAD/NURBS parameterization is too difficult | Thesis scope risk | Treat as future work; deliver mesh-based GLB/OBJ reconstruction |
 
@@ -294,4 +315,4 @@ Human Checkpoint:
 
 After Phase 2 baseline validation, the recommended next step is:
 
-**Phase 3: ControlNet Sketch-Domain Adaptation.**
+**Phase 3: Designer Sketch-Domain Adaptation.**
