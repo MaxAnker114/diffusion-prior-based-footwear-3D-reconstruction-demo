@@ -12,7 +12,7 @@ The route is updated from a TRELLIS-dominant system to:
 
 ## Phase 0 - Documentation and Route Review
 
-Status: in progress.
+Status: completed.
 
 Goals:
 
@@ -33,7 +33,7 @@ Tests:
 
 Human Checkpoint:
 
-- You review this updated plan before we install or implement the next model backend.
+- Completed. The route was updated to SF3D + Hunyuan3D + ControlNet, with TRELLIS retained only as an experimental comparison backend.
 
 ## Phase 1 - Environment Baseline
 
@@ -58,6 +58,8 @@ Human Checkpoint:
 
 ## Phase 2 - SF3D Baseline Evaluation
 
+Status: completed and passed for baseline feasibility.
+
 Goal:
 
 - Prove that Stable Fast 3D can generate a usable shoe GLB locally from a single image.
@@ -73,20 +75,27 @@ Tasks:
 
 Tests:
 
-- Import SF3D modules.
-- Single sample inference smoke test.
-- Shoe image inference smoke test.
-- GLB file loads successfully.
+- Import SF3D modules: passed.
+- Single sample inference smoke test: passed.
+- Shoe image inference smoke test: passed with `code/test_assets/worn_shoe_commons.png`.
+- GLB file loads successfully with `trimesh`: passed.
+
+Verified Results:
+
+- Official SF3D sample generated a readable GLB.
+- Public shoe image generated a readable GLB.
+- Shoe test peak GPU memory reported by SF3D: `6172.10009765625 MB`.
+- Shoe test mesh validation: 1 geometry, `18572` vertices, `28956` faces.
 
 Success criteria:
 
-- A generated GLB can be opened and previewed.
-- Peak VRAM stays within the RTX 4060 8GB limit.
-- The output is good enough to serve as a baseline in the graduation demo.
+- A generated GLB can be opened and previewed: passed at file/mesh validation level.
+- Peak VRAM stays within the RTX 4060 8GB limit: passed.
+- The output is good enough to serve as a baseline in the graduation demo: passed as a technical baseline; visual quality will continue to be reviewed with more shoe cases.
 
 Human Checkpoint:
 
-- Stop after SF3D evaluation and ask for your review before integrating it into the project UI.
+- Completed. SF3D is accepted as the default MVP 3D backend unless later shoe cases reveal unacceptable visual quality.
 
 ## Phase 3 - ControlNet Sketch-Domain Adaptation
 
@@ -283,6 +292,6 @@ Human Checkpoint:
 
 ## Current Next Step
 
-After you review and approve this Step 7 documentation update, the recommended next step is:
+After Phase 2 baseline validation, the recommended next step is:
 
-**Step 8: Evaluate Stable Fast 3D baseline in WSL and verify one shoe image can produce a GLB within 8GB VRAM.**
+**Phase 3: ControlNet Sketch-Domain Adaptation.**

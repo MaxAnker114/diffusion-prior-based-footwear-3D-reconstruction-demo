@@ -72,21 +72,56 @@ Result:
 - Vertices: `12858`
 - Faces: `20000`
 
-## Current Limitation
+## Shoe-Specific Test
 
-The local project does not yet contain a clean shoe image suitable for the SF3D shoe-specific test. Only the official SF3D sample image has been validated.
+Input:
 
-## Step 8 Status
+- File: `code/test_assets/worn_shoe_commons.png`
+- Source page: https://commons.wikimedia.org/wiki/File:Worn_Shoe.png
+- License: CC0 1.0 Universal / Public Domain Dedication
 
-Partial pass:
+Command:
+
+```bash
+python run.py /mnt/d/Final_Project/code/test_assets/worn_shoe_commons.png \
+  --output-dir /mnt/d/Final_Project/code/outputs/sf3d_worn_shoe \
+  --texture-resolution 512 \
+  --remesh_option none \
+  --batch_size 1
+```
+
+Result:
+
+- Inference completed successfully.
+- SF3D reported peak GPU memory: `6172.10009765625 MB`.
+- Output GLB: `code/outputs/sf3d_worn_shoe/0/mesh.glb`
+- Output GLB size: `1049856 bytes`
+
+`trimesh` validation:
+
+- Loaded as `Scene`
+- Geometry count: `1`
+- Vertices: `18572`
+- Faces: `28956`
+- Bounds: `[[-0.48638999462127686, -0.33011168241500854, -0.350563645362854], [0.40707024931907654, 0.4387977123260498, 0.24115651845932007]]`
+
+## Baseline Status
+
+Passed for technical feasibility:
 
 - SF3D environment: passed
 - Hugging Face gated access: passed
 - CUDA extension issue: fixed
 - Official sample GLB export: passed
-- 8GB VRAM feasibility: passed for the sample test
-- Shoe image GLB test: pending input image
+- Public shoe image GLB export: passed
+- 8GB VRAM feasibility: passed for both the sample test and the shoe-specific test
+
+Remaining quality work:
+
+- Test more shoe categories and viewpoints.
+- Visually inspect generated GLB outputs in the later UI/viewer phase.
+- Compare direct shoe image input against ControlNet-adapted sketch/render input.
 
 ## Recommended Next Action
 
-Provide or prepare one clean shoe image, preferably a side-view product image on a simple background, then run the same SF3D command to verify shoe-specific GLB output quality and VRAM usage.
+Proceed to ControlNet sketch-domain adaptation, then compare direct SF3D input against ControlNet-rendered input.
