@@ -1,4 +1,4 @@
-# Step 8 - SF3D Baseline Evaluation
+# SF3D Baseline Evaluation
 
 Date: 2026-05-04
 
