@@ -1,40 +1,107 @@
 # Diffusion-Prior-Based Footwear 3D Reconstruction Demo
 
-本项目是一个面向毕业设计的鞋履 3D 重建研究 demo，目标是从鞋履单视图或三视图草图/图像生成可预览、可导出的 3D 模型。
+A research-oriented demo for reconstructing 3D footwear models from single-view or multi-view shoe sketches/images.
 
-当前技术路线已经从 TRELLIS 主导调整为：
+The project is being developed as a graduation project. Its current priority is to build a reproducible local pipeline that can run on an RTX 4060 Laptop GPU with 8GB VRAM and export inspectable 3D assets such as GLB/OBJ files.
 
-1. **Stable Fast 3D (SF3D) baseline**：优先完成可在 RTX 4060 Laptop GPU 8GB VRAM 上运行的单图到 GLB 基线。
-2. **Hunyuan3D fine-tune candidate**：作为更高质量生成与鞋履域适配的研究候选。
-3. **ControlNet sketch-domain adaptation**：将鞋履草图、边缘图或三视图输入转化为更适合 3D 生成模型的渲染图。
+## Status
 
-TRELLIS 保留为实验性/高显存对比后端，不再作为当前 MVP 的主链路。
+Current stage: planning and environment validation.
 
-## Project Structure
+The original TRELLIS-first route has been revised after local VRAM testing. TRELLIS can be imported and can run limited Gaussian output on the current machine, but mesh extraction is not reliable within 8GB VRAM. The MVP route is now:
+
+- **Stable Fast 3D (SF3D)** as the first practical single-image-to-GLB baseline.
+- **Hunyuan3D** as a research and possible fine-tuning candidate for footwear-domain adaptation.
+- **ControlNet** for sketch-to-render adaptation before 3D reconstruction.
+
+## Goals
+
+- Generate a usable 3D footwear model from a single-view shoe sketch or image.
+- Preserve a path for three-view input and multi-view evaluation.
+- Export GLB as the primary preview format, with OBJ support considered when useful.
+- Build a local demo UI for inspection, comparison, and paper screenshots.
+- Record model feasibility, runtime, VRAM usage, and reconstruction quality.
+
+## Planned Pipeline
 
 ```text
-D:/Final_Project
-├── agent/   # 架构、开发计划、评阅结论、agent 协作记录
-├── code/    # 后续项目代码、脚本、本地实验入口
-├── paper/   # 论文材料、中期报告、后续论文相关资产
+Input shoe sketch/image
+        |
+        v
+Preprocessing
+  - crop and normalize
+  - background cleanup
+  - Canny/Scribble control map
+        |
+        v
+ControlNet sketch-domain adaptation
+        |
+        v
+Image-to-3D backend
+  - SF3D baseline
+  - Hunyuan3D candidate
+  - TRELLIS experimental fallback/comparison
+        |
+        v
+Mesh post-processing
+  - cleanup
+  - smoothing
+  - GLB/OBJ export
+        |
+        v
+Gradio demo and paper evaluation assets
+```
+
+## Repository Structure
+
+```text
+.
+├── agent/
+│   ├── Dev_Plan.md
+│   └── System_Architecture.md
+├── code/
+│   └── README.md
+├── paper/
+│   └── graduation midterm PDF and paper assets
+├── .gitattributes
+├── .gitignore
 └── README.md
 ```
 
-## Current Documents
+## Key Documents
 
-- `agent/System_Architecture.md`：系统架构与模型路线。
-- `agent/Dev_Plan.md`：分阶段开发计划与人工审阅 checkpoint。
-- `paper/毕业论文中期.pdf`：论文中期材料。
+- [System Architecture](agent/System_Architecture.md)
+- [Development Plan](agent/Dev_Plan.md)
+- [Code Directory Notes](code/README.md)
 
-## Development Policy
+## Hardware Target
 
-- 复杂任务一步一步推进，每个关键阶段完成后先审阅再继续。
-- 在关键性更改前，先确保当前稳定版本已经 commit。
-- 配置了远程仓库后，稳定版本应 push 到 GitHub，方便追踪与回退。
-- 不将 API Key、token、登录态、虚拟环境、模型权重、缓存、日志或大型第三方依赖提交到仓库。
+- OS/runtime: WSL Ubuntu
+- GPU: NVIDIA GeForce RTX 4060 Laptop GPU
+- VRAM: 8GB
+- Python: 3.10
+- PyTorch/CUDA stack: validated in the local WSL environment
 
-## Next Step
+## Development Notes
 
-等待 Step 7 文档审阅通过后，进入：
+- The project proceeds through human-reviewed checkpoints.
+- Before major changes, the last stable state should be committed.
+- When a remote repository is configured, stable commits should be pushed to GitHub.
+- Local virtual environments, model weights, cache files, logs, secrets, and third-party checkouts are intentionally excluded from Git.
 
-**Step 8: Evaluate Stable Fast 3D baseline in WSL and verify one shoe image can produce a GLB within 8GB VRAM.**
+## Roadmap
+
+- [x] Validate WSL, Python, CUDA, PyTorch, xformers, TRELLIS import, and ControlNet import.
+- [x] Revise the project route based on 8GB VRAM constraints.
+- [x] Initialize Git and push the first stable planning baseline.
+- [ ] Evaluate Stable Fast 3D on a shoe image and verify GLB export.
+- [ ] Validate ControlNet sketch-to-render adaptation.
+- [ ] Build the CLI end-to-end MVP.
+- [ ] Evaluate Hunyuan3D as a candidate backend/fine-tuning path.
+- [ ] Add mesh post-processing.
+- [ ] Build the Gradio demo UI.
+- [ ] Prepare paper evaluation materials.
+
+## Current Next Step
+
+Step 8: evaluate the Stable Fast 3D baseline in WSL and verify that one shoe image can produce a GLB within the 8GB VRAM limit.
