@@ -7,7 +7,7 @@ import shlex
 import subprocess
 import sys
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
@@ -34,6 +34,24 @@ class CommandResult:
     elapsed_seconds: float
     stdout: str
     stderr: str
+
+
+def summarize_command_result(
+    result: CommandResult,
+    stdout_tail_chars: int = 4000,
+    stderr_tail_chars: int = 4000,
+) -> dict:
+    stdout_truncated = len(result.stdout) > stdout_tail_chars
+    stderr_truncated = len(result.stderr) > stderr_tail_chars
+    return {
+        "command": result.command,
+        "returncode": result.returncode,
+        "elapsed_seconds": result.elapsed_seconds,
+        "stdout_tail": result.stdout[-stdout_tail_chars:],
+        "stderr_tail": result.stderr[-stderr_tail_chars:],
+        "stdout_truncated": stdout_truncated,
+        "stderr_truncated": stderr_truncated,
+    }
 
 
 def ensure_wsl_runtime() -> None:
@@ -126,6 +144,40 @@ def run_sf3d(
     return run_command(["bash", "-lc", command], cwd=PROJECT_ROOT)
 
 
+def run_hunyuan3d_shape(
+    input_image: Path,
+    output_dir: Path,
+    conda_profile: Path,
+    conda_env: str,
+    model_path: str,
+    subfolder: str,
+    variant: str,
+    steps: int,
+    octree_resolution: int,
+    num_chunks: int,
+    seed: int,
+) -> CommandResult:
+    command = (
+        f"source {shlex.quote(str(conda_profile))} && "
+        f"conda activate {shlex.quote(conda_env)} && "
+        "export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True && "
+        "export HF_HUB_OFFLINE=1 && "
+        f"cd {shlex.quote(str(PROJECT_ROOT))} && "
+        f"python {shlex.quote(str(CODE_DIR / 'reconstruction' / 'run_hunyuan3d_shape.py'))} "
+        f"{shlex.quote(str(input_image.resolve()))} "
+        f"--output-root {shlex.quote(str(output_dir.resolve()))} "
+        "--run-id result "
+        f"--model-path {shlex.quote(model_path)} "
+        f"--subfolder {shlex.quote(subfolder)} "
+        f"--variant {shlex.quote(variant)} "
+        f"--steps {steps} "
+        f"--octree-resolution {octree_resolution} "
+        f"--num-chunks {num_chunks} "
+        f"--seed {seed}"
+    )
+    return run_command(["bash", "-lc", command], cwd=PROJECT_ROOT)
+
+
 def write_json(path: Path, data: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
@@ -146,13 +198,27 @@ def parse_args() -> argparse.Namespace:
         "--mode",
         choices=["direct", "controlnet", "both"],
         default="controlnet",
-        help="Which SF3D path to run.",
+        help="Which input path to reconstruct.",
+    )
+    parser.add_argument(
+        "--backend",
+        choices=["hunyuan3d", "sf3d", "both"],
+        default="hunyuan3d",
+        help="Which 3D backend to run.",
     )
     parser.add_argument("--prompt", default=DEFAULT_PROMPT)
     parser.add_argument("--controlnet-steps", type=int, default=12)
     parser.add_argument("--controlnet-seed", type=int, default=114)
     parser.add_argument("--control-scale", type=float, default=0.9)
     parser.add_argument("--texture-resolution", type=int, default=512)
+    parser.add_argument("--hunyuan-env", default="hunyuan3d")
+    parser.add_argument("--hunyuan-model-path", default="tencent/Hunyuan3D-2mini")
+    parser.add_argument("--hunyuan-subfolder", default="hunyuan3d-dit-v2-mini")
+    parser.add_argument("--hunyuan-variant", default="fp16")
+    parser.add_argument("--hunyuan-steps", type=int, default=30)
+    parser.add_argument("--hunyuan-octree-resolution", type=int, default=256)
+    parser.add_argument("--hunyuan-num-chunks", type=int, default=20000)
+    parser.add_argument("--hunyuan-seed", type=int, default=12345)
     parser.add_argument(
         "--sf3d-repo",
         type=Path,
@@ -178,6 +244,7 @@ def main() -> None:
     preprocess_dir = run_dir / "preprocess"
     render_dir = run_dir / "controlnet"
     sf3d_dir = run_dir / "sf3d"
+    hunyuan_dir = run_dir / "hunyuan3d"
     reports_dir = run_dir / "reports"
 
     print(f"run_dir: {run_dir}")
@@ -194,6 +261,8 @@ def main() -> None:
     command_results: dict[str, dict] = {}
     mesh_reports: dict[str, dict] = {}
 
+    reconstruction_inputs: dict[str, Path] = {}
+
     if args.mode in {"controlnet", "both"}:
         print("step: controlnet render")
         rendered_image = render_dir / "render.png"
@@ -205,47 +274,62 @@ def main() -> None:
             seed=args.controlnet_seed,
             control_scale=args.control_scale,
         )
-        command_results["controlnet"] = asdict(result)
-
-        print("step: sf3d from controlnet render")
-        sf3d_output = sf3d_dir / "controlnet_render"
-        result = run_sf3d(
-            input_image=rendered_image,
-            output_dir=sf3d_output,
-            sf3d_repo=args.sf3d_repo.resolve(),
-            conda_profile=args.conda_profile,
-            conda_env=args.sf3d_env,
-            texture_resolution=args.texture_resolution,
-        )
-        command_results["sf3d_controlnet"] = asdict(result)
-        mesh_reports["controlnet_render"] = build_mesh_report(
-            sf3d_output / "0" / "mesh.glb",
-            project_root=PROJECT_ROOT,
-        )
+        command_results["controlnet"] = summarize_command_result(result)
+        reconstruction_inputs["controlnet_render"] = rendered_image
 
     if args.mode in {"direct", "both"}:
-        print("step: sf3d direct from normalized sketch")
-        sf3d_output = sf3d_dir / "direct_sketch"
-        result = run_sf3d(
-            input_image=preprocess_outputs["normalized"],
-            output_dir=sf3d_output,
-            sf3d_repo=args.sf3d_repo.resolve(),
-            conda_profile=args.conda_profile,
-            conda_env=args.sf3d_env,
-            texture_resolution=args.texture_resolution,
-        )
-        command_results["sf3d_direct"] = asdict(result)
-        mesh_reports["direct_sketch"] = build_mesh_report(
-            sf3d_output / "0" / "mesh.glb",
-            project_root=PROJECT_ROOT,
-        )
+        reconstruction_inputs["direct_sketch"] = preprocess_outputs["normalized"]
+
+    for input_name, reconstruction_input in reconstruction_inputs.items():
+        if args.backend in {"hunyuan3d", "both"}:
+            print(f"step: hunyuan3d from {input_name}")
+            hunyuan_output = hunyuan_dir / input_name
+            result = run_hunyuan3d_shape(
+                input_image=reconstruction_input,
+                output_dir=hunyuan_output,
+                conda_profile=args.conda_profile,
+                conda_env=args.hunyuan_env,
+                model_path=args.hunyuan_model_path,
+                subfolder=args.hunyuan_subfolder,
+                variant=args.hunyuan_variant,
+                steps=args.hunyuan_steps,
+                octree_resolution=args.hunyuan_octree_resolution,
+                num_chunks=args.hunyuan_num_chunks,
+                seed=args.hunyuan_seed,
+            )
+            command_results[f"hunyuan3d_{input_name}"] = summarize_command_result(result)
+            mesh_reports[f"hunyuan3d_{input_name}"] = build_mesh_report(
+                hunyuan_output / "result" / "mesh.glb",
+                project_root=PROJECT_ROOT,
+            )
+
+        if args.backend in {"sf3d", "both"}:
+            print(f"step: sf3d from {input_name}")
+            sf3d_output = sf3d_dir / input_name
+            result = run_sf3d(
+                input_image=reconstruction_input,
+                output_dir=sf3d_output,
+                sf3d_repo=args.sf3d_repo.resolve(),
+                conda_profile=args.conda_profile,
+                conda_env=args.sf3d_env,
+                texture_resolution=args.texture_resolution,
+            )
+            command_results[f"sf3d_{input_name}"] = summarize_command_result(result)
+            mesh_reports[f"sf3d_{input_name}"] = build_mesh_report(
+                sf3d_output / "0" / "mesh.glb",
+                project_root=PROJECT_ROOT,
+            )
 
     summary = {
         "run_id": args.run_id,
         "input": relpath(input_path),
         "mode": args.mode,
+        "backend": args.backend,
         "preprocess_outputs": {
             name: relpath(path) for name, path in preprocess_outputs.items()
+        },
+        "reconstruction_inputs": {
+            name: relpath(path) for name, path in reconstruction_inputs.items()
         },
         "mesh_reports": mesh_reports,
         "commands": command_results,

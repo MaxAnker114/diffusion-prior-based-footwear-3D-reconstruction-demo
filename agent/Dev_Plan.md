@@ -7,7 +7,7 @@ This project will proceed one checkpoint at a time. After each phase, I will sto
 The route is updated from a TRELLIS-dominant system to:
 
 1. **ControlNet sketch-domain adaptation** to bridge designer sketch inputs and image-to-3D model expectations.
-2. **Hunyuan3D-2mini / Hunyuan3D-2mv** as the preferred shape-generation direction after Phase 5B visual review.
+2. **Hunyuan3D-2mini / Hunyuan3D-2mv** as the preferred shape-generation direction after Phase 5B visual review. Hunyuan3D-2mini is now the default CLI backend after Phase 5D.
 3. **SF3D baseline** as a stable comparison/fallback backend.
 
 Primary input definition:
@@ -166,11 +166,11 @@ Human Checkpoint:
 
 ## Phase 4 - End-to-End MVP Pipeline
 
-Status: in progress. Phase 4A CLI skeleton passed on the patent side-view sketch. Phase 4B mesh reporting layer passed a direct smoke test.
+Status: in progress. Phase 4A CLI skeleton passed on the patent side-view sketch. Phase 4B mesh reporting layer passed a direct smoke test. Phase 5D later promoted Hunyuan3D-2mini into this CLI as the default backend.
 
 Goal:
 
-- Connect designer-sketch preprocessing, optional ControlNet rendering, SF3D reconstruction, post-processing, and GLB preview.
+- Connect designer-sketch preprocessing, optional ControlNet rendering, Hunyuan3D/SF3D reconstruction, post-processing, and GLB preview.
 
 Tasks:
 
@@ -180,7 +180,7 @@ Tasks:
   - SF3D reconstruction
   - mesh post-processing
   - export and file management
-- Use SF3D as the default 3D backend.
+- Use Hunyuan3D-2mini as the default 3D backend after Phase 5D, while preserving SF3D as baseline/fallback.
 - Add fallback behavior when ControlNet or SF3D fails.
 - Save intermediate outputs for paper screenshots and debugging.
 
@@ -223,7 +223,7 @@ Human Checkpoint:
 
 ## Phase 5 - Hunyuan3D Candidate Evaluation
 
-Status: in progress. Phase 5A pre-installation candidate evaluation completed. Phase 5B Hunyuan3D-2mini shape-only smoke test passed. Phase 5C Hunyuan3D-2mv local smoke test did not pass yet.
+Status: in progress. Phase 5A pre-installation candidate evaluation completed. Phase 5B Hunyuan3D-2mini shape-only smoke test passed. Phase 5C Hunyuan3D-2mv local smoke test did not pass yet. Phase 5D CLI integration passed for Hunyuan3D-2mini.
 
 Goal:
 
@@ -269,6 +269,22 @@ Phase 5C Results:
 - No 2mv GLB was generated.
 - Evaluation report: `agent/Hunyuan3D_2mv_Smoke_Test.md`.
 
+Phase 5D Results:
+
+- Integrated Hunyuan3D-2mini into `code/pipeline/cli_mvp.py`.
+- Added CLI backend selection:
+  - `--backend hunyuan3d`
+  - `--backend sf3d`
+  - `--backend both`
+- Changed the default CLI shape backend to `hunyuan3d`.
+- Kept `direct`, `controlnet`, and `both` modes as input-path choices.
+- Added Hunyuan3D backend options for model path, subfolder, variant, steps, octree resolution, chunk size, and seed.
+- The Hunyuan subprocess uses `HF_HUB_OFFLINE=1` so the validated local 2mini cache does not stall on network/cache checks.
+- The CLI stores command output tails rather than full stdout/stderr to keep JSON summaries readable.
+- Direct Hunyuan3D CLI smoke test passed with run id `phase5d_cli_hunyuan2mini_direct_render_offline`.
+- Mesh validation again produced a valid watertight GLB with 117700 vertices, 235396 faces, and about `4436.453 MB` peak CUDA memory.
+- Evaluation report: `agent/Hunyuan3D_CLI_Integration.md`.
+
 Tasks:
 
 - Install Hunyuan3D in a separate environment to avoid breaking SF3D.
@@ -289,7 +305,7 @@ Next test proposal:
 
 Next implementation proposal:
 
-- Promote the stable local path into the MVP pipeline: ControlNet render -> Hunyuan3D-2mini -> mesh report.
+- Review Phase 5D, then proceed to the Gradio UI around the stable local path: sketch/preprocessed render -> Hunyuan3D-2mini -> mesh report.
 - Keep texture generation disabled.
 - Keep Hunyuan3D-2mv as pending/retry or cloud-assisted.
 
@@ -302,7 +318,7 @@ Success criteria:
 
 Human Checkpoint:
 
-- Stop after Hunyuan3D feasibility report and ask for your review. Phase 5C is ready for review; Hunyuan3D-2mv should not block the MVP.
+- Stop after Hunyuan3D CLI integration and ask for your review. Phase 5D is ready for review; Hunyuan3D-2mv should not block the MVP.
 
 ## Phase 6 - Mesh Post-processing
 
@@ -408,6 +424,6 @@ Human Checkpoint:
 
 ## Current Next Step
 
-After Phase 5B visual review, the recommended next step is:
+After Phase 5D CLI integration, the recommended next step is:
 
-**Review Phase 5C**, then proceed toward the stable MVP path using Hunyuan3D-2mini as the preferred backend.
+**Review Phase 5D**, then begin Phase 7 Gradio UI integration using Hunyuan3D-2mini as the default backend and SF3D as a comparison/fallback backend.

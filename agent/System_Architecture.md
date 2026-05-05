@@ -11,7 +11,7 @@ The formal project input is a designer sketch, not a general product photo. Prod
 The project route is updated from a TRELLIS-dominant pipeline to:
 
 1. **ControlNet sketch-domain adaptation**: convert single-view or three-view designer shoe sketches into more model-friendly rendered shoe images.
-2. **Hunyuan3D-2mini / Hunyuan3D-2mv shape generation**: preferred reconstruction direction after Phase 5B visual review.
+2. **Hunyuan3D-2mini / Hunyuan3D-2mv shape generation**: preferred reconstruction direction after Phase 5B visual review. Hunyuan3D-2mini is now the default CLI backend after Phase 5D.
 3. **Stable Fast 3D (SF3D) baseline**: stable comparison/fallback backend for single-image-to-GLB generation.
 
 TRELLIS is no longer the primary runtime path because local testing showed that the official `microsoft/TRELLIS-image-large` pipeline can load and produce Gaussian output on 8GB VRAM, but mesh extraction runs out of memory.
@@ -32,6 +32,7 @@ TRELLIS is no longer the primary runtime path because local testing showed that 
 - Future tests should use single-view or three-view designer shoe sketches as the primary input type.
 - The SF3D product-image baseline is visually acceptable for exterior shoe shape, but it does not reliably reconstruct reasonable internal shoe structure.
 - The Hunyuan3D-2mini shape-only output was manually reviewed and judged clearly better than the earlier SF3D output for the footwear case.
+- The CLI MVP now defaults to Hunyuan3D-2mini for shape generation and keeps SF3D as an explicit comparison/fallback backend.
 - Internal shoe structure is a core technical difficulty because it involves invisible geometry completion from limited visual evidence.
 - The paper and demo should present internal structure as a limitation/research challenge, not as a solved capability of the MVP.
 
@@ -55,7 +56,7 @@ Inputs:
 - Single-view designer shoe sketch.
 - Optional three-view input: front, side, top or outsole view.
 - Prompt and negative prompt fields for ControlNet rendering.
-- Backend selector: `sf3d`, `hunyuan3d_candidate`, `trellis_experimental`.
+- Backend selector: `hunyuan3d`, `sf3d`, and `both` for comparison runs. TRELLIS remains experimental documentation only unless high-VRAM runtime is available.
 
 Outputs:
 
@@ -149,6 +150,14 @@ Current Phase 5C result:
 - Hunyuan3D-2mv turbo could not be tested because the large model download did not complete in the current session.
 - Hunyuan3D-2mv remains a pending or cloud-assisted research path, not a blocker for the MVP.
 
+Current Phase 5D result:
+
+- `code/pipeline/cli_mvp.py` now exposes Hunyuan3D-2mini as the default backend through `--backend hunyuan3d`.
+- `--backend sf3d` and `--backend both` preserve baseline comparison.
+- The Hunyuan3D CLI path writes mesh reports through the shared post-processing layer.
+- The validated CLI smoke test used local cached Hunyuan3D-2mini weights in offline mode and exported a valid watertight GLB.
+- The full ControlNet + Hunyuan3D combined path should be tested with the UI/progress layer because it chains two heavy inference stages.
+
 #### Experimental Backend: TRELLIS
 
 Role:
@@ -183,6 +192,7 @@ Responsibilities:
 Current implementation:
 
 - `code/postprocess/mesh_report.py` implements the non-destructive reporting portion.
+- `code/pipeline/cli_mvp.py` calls the same reporting layer for Hunyuan3D-2mini and SF3D outputs.
 - The report does not modify mesh geometry.
 - The report can indicate suspicious proxy signals, but it cannot automatically prove whether shoe interiors are anatomically or structurally correct.
 - Geometry-changing smoothing/cleanup remains an optional later step and should be compared against the original GLB before becoming a default.

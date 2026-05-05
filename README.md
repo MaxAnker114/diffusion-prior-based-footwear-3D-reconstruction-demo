@@ -6,12 +6,12 @@ The project is being developed as a graduation project. Its current priority is 
 
 ## Status
 
-Current stage: Hunyuan3D shape backend evaluation.
+Current stage: Hunyuan3D-2mini CLI backend integration.
 
 The original TRELLIS-first route has been revised after local VRAM testing. TRELLIS can be imported and can run limited Gaussian output on the current machine, but mesh extraction is not reliable within 8GB VRAM. The MVP route is now:
 
 - **ControlNet** for sketch-to-render adaptation before 3D reconstruction.
-- **Hunyuan3D-2mini** as the current preferred local shape-generation backend after visual review.
+- **Hunyuan3D-2mini** as the current preferred local shape-generation backend after visual review and CLI integration.
 - **Hunyuan3D-2mv** as a pending multi-view candidate for the three-view shoe sketch path.
 - **Stable Fast 3D (SF3D)** as a stable baseline/fallback backend.
 
@@ -58,16 +58,17 @@ Gradio demo and paper evaluation assets
 
 ```text
 .
-├── agent/
-│   ├── Dev_Plan.md
-│   └── System_Architecture.md
-├── code/
-│   └── README.md
-├── paper/
-│   └── graduation midterm PDF and paper assets
-├── .gitattributes
-├── .gitignore
-└── README.md
+|-- agent/
+|   |-- Dev_Plan.md
+|   |-- System_Architecture.md
+|   |-- Hunyuan3D_CLI_Integration.md
+|-- code/
+|   |-- README.md
+|-- paper/
+|   |-- graduation midterm PDF and paper assets
+|-- .gitattributes
+|-- .gitignore
+|-- README.md
 ```
 
 ## Key Documents
@@ -75,6 +76,7 @@ Gradio demo and paper evaluation assets
 - [System Architecture](agent/System_Architecture.md)
 - [Development Plan](agent/Dev_Plan.md)
 - [Code Directory Notes](code/README.md)
+- [Hunyuan3D CLI Integration](agent/Hunyuan3D_CLI_Integration.md)
 
 ## Hardware Target
 
@@ -104,10 +106,11 @@ Gradio demo and paper evaluation assets
 - [x] Install and smoke-test Hunyuan3D-2mini shape-only inference.
 - [x] Visually review Hunyuan3D-2mini output and promote it as the preferred shape backend.
 - [x] Attempt Hunyuan3D-2mv shape-only inference and record local blockers.
+- [x] Integrate Hunyuan3D-2mini into the CLI MVP as the default backend.
 - [ ] Add optional geometry-changing mesh cleanup/post-processing.
 - [ ] Build the Gradio demo UI.
 - [ ] Prepare paper evaluation materials.
 
 ## Current Next Step
 
-Review Phase 5C, then proceed toward the stable MVP path using Hunyuan3D-2mini as the preferred backend.
+Review Phase 5D, then begin the Gradio UI around the stable Hunyuan3D-2mini CLI path.

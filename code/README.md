@@ -11,7 +11,7 @@ Planned and current modules:
 - `reconstruction/`: reserved for future backend wrappers around SF3D and Hunyuan3D.
 - `ui/`: reserved for the later Gradio demo.
 
-`code/third_party/` is used for local third-party source checkouts such as Stable Fast 3D and is intentionally ignored by Git.
+`code/third_party/` is used for local third-party source checkouts such as Stable Fast 3D and Hunyuan3D-2 and is intentionally ignored by Git.
 
 Runtime outputs are written under `code/outputs/` and are also ignored by Git.
 
@@ -25,25 +25,35 @@ conda activate trellis310
 cd /mnt/d/Final_Project
 python code/pipeline/cli_mvp.py \
   code/test_assets/patent_sketches/usd247201s_sport_shoe/views/right_side_fig4_clean.png \
-  --run-id phase4_cli_smoke_patent_side \
-  --mode both \
+  --run-id phase5d_cli_hunyuan2mini_direct_render \
+  --mode direct \
+  --backend hunyuan3d \
   --controlnet-steps 8 \
-  --texture-resolution 512
+  --hunyuan-steps 30 \
+  --hunyuan-octree-resolution 256
 ```
 
 Modes:
 
-- `direct`: normalized sketch -> SF3D.
-- `controlnet`: sketch -> ControlNet render -> SF3D.
-- `both`: run both paths and compare reports.
+- `direct`: reconstruct from the normalized sketch or image.
+- `controlnet`: sketch -> ControlNet render -> reconstruction backend.
+- `both`: run both input paths and compare reports.
+
+Backends:
+
+- `hunyuan3d`: default. Runs Hunyuan3D-2mini shape-only inference.
+- `sf3d`: runs the earlier Stable Fast 3D baseline.
+- `both`: runs both reconstruction backends for comparison.
 
 Each run writes:
 
 - preprocessing outputs
 - optional ControlNet render
-- SF3D GLB output
+- Hunyuan3D and/or SF3D GLB output
 - `reports/summary.json`
 - `reports/mesh_report.json`
+
+The Hunyuan3D CLI path assumes that `tencent/Hunyuan3D-2mini` is already cached locally in the WSL environment. It sets `HF_HUB_OFFLINE=1` to avoid network/cache stalls during repeat runs.
 
 ## Standalone Mesh Report
 
