@@ -6,9 +6,9 @@ This project will proceed one checkpoint at a time. After each phase, I will sto
 
 The route is updated from a TRELLIS-dominant system to:
 
-1. **SF3D baseline** for reliable local single-image-to-GLB delivery.
-2. **Hunyuan3D fine-tune candidate** for research value and possible shoe-domain adaptation.
-3. **ControlNet sketch-domain adaptation** to bridge designer sketch inputs and image-to-3D model expectations.
+1. **ControlNet sketch-domain adaptation** to bridge designer sketch inputs and image-to-3D model expectations.
+2. **Hunyuan3D-2mini / Hunyuan3D-2mv** as the preferred shape-generation direction after Phase 5B visual review.
+3. **SF3D baseline** as a stable comparison/fallback backend.
 
 Primary input definition:
 
@@ -255,6 +255,8 @@ Phase 5B Results:
 - Peak CUDA memory: `4436.453 MB`.
 - Inference time after model loading: `30.967 s`.
 - Mesh validation: valid GLB, 1 geometry, 117700 vertices, 235396 faces, watertight, 1 connected component.
+- Human visual review: the generated Hunyuan3D-2mini GLB is clearly better than the earlier SF3D output for the footwear case.
+- Route implication: Hunyuan3D-2mini is promoted to the current preferred shape-generation backend; SF3D is retained as a stable baseline/fallback.
 - Evaluation report: `agent/Hunyuan3D_2mini_Smoke_Test.md`.
 
 Tasks:
@@ -274,7 +276,6 @@ Tests:
 
 Next test proposal:
 
-- Review the Hunyuan3D-2mini GLB visually.
 - Run Hunyuan3D-2mv shape-only inference after review.
 - Keep texture generation disabled.
 - Run generated mesh through `code/postprocess/mesh_report.py`.
@@ -288,7 +289,7 @@ Success criteria:
 
 Human Checkpoint:
 
-- Stop after Hunyuan3D feasibility report and ask for your review. Phase 5B is ready for review before Hunyuan3D-2mv testing.
+- Stop after Hunyuan3D feasibility report and ask for your review. Phase 5B visual review is completed; Phase 5C Hunyuan3D-2mv testing is next.
 
 ## Phase 6 - Mesh Post-processing
 
@@ -394,6 +395,6 @@ Human Checkpoint:
 
 ## Current Next Step
 
-After Phase 4B mesh reporting validation, the recommended next step is:
+After Phase 5B visual review, the recommended next step is:
 
-**Human review of the new report layer**, then choose between conservative mesh cleanup comparison, Hunyuan3D candidate evaluation, or Gradio UI integration.
+**Phase 5C: Hunyuan3D-2mv shape-only multi-view candidate testing.**

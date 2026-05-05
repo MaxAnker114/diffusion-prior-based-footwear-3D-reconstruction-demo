@@ -125,6 +125,20 @@ Compared with the earlier SF3D outputs, this first Hunyuan3D-2mini result is not
 
 This result does not prove that Hunyuan3D-2mini is visually superior for footwear. It only proves that the local shape-only path is technically viable and worth deeper comparison.
 
+## Human Visual Review
+
+User review result:
+
+- The generated Hunyuan3D-2mini GLB was visually inspected by the project owner.
+- The result is judged to be clearly better than the earlier SF3D output for the footwear case.
+
+Implication:
+
+- Hunyuan3D-2mini should be promoted from a research-only candidate to the current preferred shape-generation backend.
+- SF3D should remain as a stable baseline/comparison backend, especially for textured GLB comparison and fallback.
+- The next Hunyuan test should be Hunyuan3D-2mv, because it is more aligned with the project's single-view/three-view designer sketch target.
+- Texture generation should remain disabled until shape generation and multi-view feasibility are stable.
+
 ## Known Issues
 
 `pymeshlab` still prints plugin warnings about `libOpenGL.so.0` during shapegen import. Installing `libopengl` into the conda environment did not remove the warnings in this shell session.
@@ -147,5 +161,4 @@ Phase 5B passed.
 
 Recommended next step:
 
-- Human visual review of the generated Hunyuan3D-2mini GLB.
-- Then test Hunyuan3D-2mv shape-only with a three-view or pseudo-three-view input set, because 2mv is more aligned with the thesis target.
+- Test Hunyuan3D-2mv shape-only with a three-view or pseudo-three-view input set, because 2mv is more aligned with the thesis target.

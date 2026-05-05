@@ -6,13 +6,14 @@ The project is being developed as a graduation project. Its current priority is 
 
 ## Status
 
-Current stage: CLI MVP and mesh reporting.
+Current stage: Hunyuan3D shape backend evaluation.
 
 The original TRELLIS-first route has been revised after local VRAM testing. TRELLIS can be imported and can run limited Gaussian output on the current machine, but mesh extraction is not reliable within 8GB VRAM. The MVP route is now:
 
-- **Stable Fast 3D (SF3D)** as the first practical single-image-to-GLB baseline.
-- **Hunyuan3D** as a research and possible fine-tuning candidate for footwear-domain adaptation.
 - **ControlNet** for sketch-to-render adaptation before 3D reconstruction.
+- **Hunyuan3D-2mini** as the current preferred local shape-generation backend after visual review.
+- **Hunyuan3D-2mv** as the next multi-view candidate for the three-view shoe sketch path.
+- **Stable Fast 3D (SF3D)** as a stable baseline/fallback backend.
 
 ## Goals
 
@@ -38,14 +39,15 @@ ControlNet sketch-domain adaptation
         |
         v
 Image-to-3D backend
-  - SF3D baseline
-  - Hunyuan3D candidate
-  - TRELLIS experimental fallback/comparison
+  - Hunyuan3D-2mini preferred shape backend
+  - Hunyuan3D-2mv multi-view candidate
+  - SF3D baseline/fallback
+  - TRELLIS experimental comparison
         |
         v
 Mesh post-processing
-  - cleanup
-  - smoothing
+  - diagnostics
+  - optional cleanup/smoothing
   - GLB/OBJ export
         |
         v
@@ -100,11 +102,12 @@ Gradio demo and paper evaluation assets
 - [x] Add non-destructive mesh reporting for paper/UI metrics.
 - [x] Complete Hunyuan3D pre-installation candidate evaluation.
 - [x] Install and smoke-test Hunyuan3D-2mini shape-only inference.
-- [ ] Visually review Hunyuan3D-2mini output and test Hunyuan3D-2mv shape-only inference.
+- [x] Visually review Hunyuan3D-2mini output and promote it as the preferred shape backend.
+- [ ] Test Hunyuan3D-2mv shape-only inference.
 - [ ] Add optional geometry-changing mesh cleanup/post-processing.
 - [ ] Build the Gradio demo UI.
 - [ ] Prepare paper evaluation materials.
 
 ## Current Next Step
 
-Review the Phase 5B Hunyuan3D-2mini smoke test result, then decide whether to test Hunyuan3D-2mv shape-only inference.
+Phase 5C: test Hunyuan3D-2mv shape-only inference for the multi-view shoe sketch branch.

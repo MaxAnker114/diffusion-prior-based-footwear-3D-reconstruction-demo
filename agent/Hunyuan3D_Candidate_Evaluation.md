@@ -144,3 +144,18 @@ Phase 5A status:
 
 - Passed as a pre-installation candidate evaluation.
 - Waiting for human review before Phase 5B installation and smoke testing.
+
+## Phase 5B Visual Review Update
+
+After the Hunyuan3D-2mini smoke test, the generated GLB was manually reviewed by the project owner.
+
+Review conclusion:
+
+- The Hunyuan3D-2mini output is visually much better than the earlier SF3D output for the footwear case.
+
+Route update:
+
+- Hunyuan3D-2mini is promoted from candidate to the current preferred shape-generation backend.
+- Hunyuan3D-2mv becomes the next priority because it is the best match for the project's three-view shoe sketch direction.
+- SF3D remains a stable baseline/fallback backend.
+- Hunyuan3D texture generation remains disabled until shape generation and multi-view feasibility are stable.
