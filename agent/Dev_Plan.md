@@ -109,6 +109,8 @@ Human Checkpoint:
 
 ## Phase 3 - Designer Sketch-Domain Adaptation
 
+Status: in progress. Phase 3A technical validation passed on a public shoe line-art sketch.
+
 Goal:
 
 - Convert single-view or three-view designer shoe sketches into cleaner rendered shoe images that are easier for SF3D/Hunyuan3D to reconstruct.
@@ -131,6 +133,15 @@ Tests:
 - Compare original sketch, control map, and generated render.
 - Record whether the rendered output preserves shoe silhouette, sole, upper, toe box, heel, and key design lines.
 
+Phase 3A Results:
+
+- Public shoe line-art test asset collected from Openclipart.
+- Sketch preprocessing script implemented.
+- Canny and Scribble control maps generated.
+- ControlNet Canny render succeeded with `lllyasviel/control_v11p_sd15_canny` and `runwayml/stable-diffusion-v1-5`.
+- Raw sketch -> SF3D and ControlNet render -> SF3D both exported readable GLB files.
+- Initial evidence suggests ControlNet-rendered input gives SF3D a fuller geometry range than raw line art.
+
 Success criteria:
 
 - Output render keeps the shoe silhouette and key features.
@@ -140,7 +151,7 @@ Success criteria:
 
 Human Checkpoint:
 
-- Stop after sketch-to-render validation and ask for your review.
+- Stop after sketch-to-render validation and ask for your review. Phase 3A is now ready for review before deeper tuning or three-view work.
 
 ## Phase 4 - End-to-End MVP Pipeline
 
