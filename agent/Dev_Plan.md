@@ -223,7 +223,7 @@ Human Checkpoint:
 
 ## Phase 5 - Hunyuan3D Candidate Evaluation
 
-Status: in progress. Phase 5A pre-installation candidate evaluation completed. Phase 5B Hunyuan3D-2mini shape-only smoke test passed.
+Status: in progress. Phase 5A pre-installation candidate evaluation completed. Phase 5B Hunyuan3D-2mini shape-only smoke test passed. Phase 5C Hunyuan3D-2mv local smoke test did not pass yet.
 
 Goal:
 
@@ -259,6 +259,16 @@ Phase 5B Results:
 - Route implication: Hunyuan3D-2mini is promoted to the current preferred shape-generation backend; SF3D is retained as a stable baseline/fallback.
 - Evaluation report: `agent/Hunyuan3D_2mini_Smoke_Test.md`.
 
+Phase 5C Results:
+
+- Extended `code/reconstruction/run_hunyuan3d_shape.py` to support multi-view inputs through `--front`, `--left`, `--back`, and `--right`.
+- Attempted Hunyuan3D-2mv standard shape-only inference on a pseudo-three-view patent set.
+- Standard 2mv weights downloaded, but model loading failed before inference or mesh export.
+- Attempted Hunyuan3D-2mv turbo with FlashVDM and 5 inference steps.
+- Turbo model download did not complete after a 30-minute retry, leaving incomplete Hugging Face cache blobs.
+- No 2mv GLB was generated.
+- Evaluation report: `agent/Hunyuan3D_2mv_Smoke_Test.md`.
+
 Tasks:
 
 - Install Hunyuan3D in a separate environment to avoid breaking SF3D.
@@ -271,14 +281,17 @@ Tests:
 
 - Import Hunyuan3D modules: passed with non-blocking `pymeshlab` plugin warnings.
 - Shape-only inference smoke test: passed with Hunyuan3D-2mini.
+- Multi-view shape-only inference smoke test: not passed yet with Hunyuan3D-2mv.
 - Optional texture generation test only if VRAM allows.
 - Record VRAM and runtime.
 
 Next test proposal:
 
-- Run Hunyuan3D-2mv shape-only inference after review.
+Next implementation proposal:
+
+- Promote the stable local path into the MVP pipeline: ControlNet render -> Hunyuan3D-2mini -> mesh report.
 - Keep texture generation disabled.
-- Run generated mesh through `code/postprocess/mesh_report.py`.
+- Keep Hunyuan3D-2mv as pending/retry or cloud-assisted.
 
 Success criteria:
 
@@ -289,7 +302,7 @@ Success criteria:
 
 Human Checkpoint:
 
-- Stop after Hunyuan3D feasibility report and ask for your review. Phase 5B visual review is completed; Phase 5C Hunyuan3D-2mv testing is next.
+- Stop after Hunyuan3D feasibility report and ask for your review. Phase 5C is ready for review; Hunyuan3D-2mv should not block the MVP.
 
 ## Phase 6 - Mesh Post-processing
 
@@ -397,4 +410,4 @@ Human Checkpoint:
 
 After Phase 5B visual review, the recommended next step is:
 
-**Phase 5C: Hunyuan3D-2mv shape-only multi-view candidate testing.**
+**Review Phase 5C**, then proceed toward the stable MVP path using Hunyuan3D-2mini as the preferred backend.

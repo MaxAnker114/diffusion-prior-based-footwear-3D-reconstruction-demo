@@ -39,7 +39,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run Hunyuan3D shape-only inference and export a GLB."
     )
-    parser.add_argument("input", type=Path, help="Input shoe image or sketch-derived render.")
+    parser.add_argument(
+        "input",
+        type=Path,
+        nargs="?",
+        help="Input shoe image or sketch-derived render for single-view models.",
+    )
     parser.add_argument(
         "--output-root",
         type=Path,
@@ -53,14 +58,46 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--octree-resolution", type=int, default=256)
     parser.add_argument("--num-chunks", type=int, default=20000)
     parser.add_argument("--seed", type=int, default=12345)
+    parser.add_argument(
+        "--enable-flashvdm",
+        action="store_true",
+        help="Enable Hunyuan3D FlashVDM VAE decoding for supported turbo models.",
+    )
+    parser.add_argument("--mc-algo", default="mc", help="Marching-cubes algorithm for FlashVDM.")
+    parser.add_argument("--front", type=Path, help="Front view image for multi-view models.")
+    parser.add_argument("--left", type=Path, help="Left view image for multi-view models.")
+    parser.add_argument("--back", type=Path, help="Back/rear view image for multi-view models.")
+    parser.add_argument("--right", type=Path, help="Right view image for multi-view models.")
     return parser.parse_args()
+
+
+def load_rgba(path: Path) -> Image.Image:
+    path = path.resolve()
+    if not path.exists():
+        raise FileNotFoundError(path)
+    return Image.open(path).convert("RGBA")
+
+
+def build_input(args: argparse.Namespace) -> tuple[Image.Image | dict[str, Image.Image], dict[str, str]]:
+    view_paths = {
+        "front": args.front,
+        "left": args.left,
+        "back": args.back,
+        "right": args.right,
+    }
+    selected_views = {name: path for name, path in view_paths.items() if path is not None}
+    if selected_views:
+        images = {name: load_rgba(path) for name, path in selected_views.items()}
+        return images, {name: relpath(path.resolve()) for name, path in selected_views.items()}
+
+    if args.input is None:
+        raise ValueError("Provide either a single input image or at least one multi-view image.")
+    input_path = args.input.resolve()
+    return load_rgba(input_path), {"single": relpath(input_path)}
 
 
 def main() -> None:
     args = parse_args()
-    input_path = args.input.resolve()
-    if not input_path.exists():
-        raise FileNotFoundError(input_path)
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA is required for the planned local Hunyuan3D smoke test.")
 
@@ -71,7 +108,7 @@ def main() -> None:
     reports_dir = run_dir / "reports"
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    image = Image.open(input_path).convert("RGBA")
+    image, input_manifest = build_input(args)
     torch.cuda.reset_peak_memory_stats()
 
     load_started = time.perf_counter()
@@ -80,6 +117,8 @@ def main() -> None:
         subfolder=args.subfolder,
         variant=args.variant,
     )
+    if args.enable_flashvdm:
+        pipeline.enable_flashvdm(mc_algo=args.mc_algo)
     load_seconds = time.perf_counter() - load_started
 
     infer_started = time.perf_counter()
@@ -100,7 +139,7 @@ def main() -> None:
     summary = {
         "run_id": args.run_id,
         "backend": "hunyuan3d_shape",
-        "input": relpath(input_path),
+        "input": input_manifest,
         "output_mesh": relpath(mesh_path),
         "model_path": args.model_path,
         "subfolder": args.subfolder,
@@ -109,6 +148,8 @@ def main() -> None:
         "octree_resolution": args.octree_resolution,
         "num_chunks": args.num_chunks,
         "seed": args.seed,
+        "enable_flashvdm": args.enable_flashvdm,
+        "mc_algo": args.mc_algo if args.enable_flashvdm else None,
         "load_seconds": round(load_seconds, 3),
         "infer_seconds": round(infer_seconds, 3),
         "peak_memory_mb": round(peak_memory_mb, 3),

@@ -141,7 +141,13 @@ Current Phase 5B result:
 - The first smoke test used about `4436 MB` peak CUDA memory and exported a valid watertight GLB.
 - Human visual review judged the Hunyuan3D-2mini output clearly better than the earlier SF3D output.
 - Hunyuan3D-2mini is now the current preferred shape-generation backend.
-- Hunyuan3D-2mv is now the next logical candidate for the multi-view branch.
+- Hunyuan3D-2mv is the next logical candidate for the multi-view branch, but Phase 5C did not validate it locally yet.
+
+Current Phase 5C result:
+
+- Hunyuan3D-2mv standard failed before inference/mesh export on the current local machine.
+- Hunyuan3D-2mv turbo could not be tested because the large model download did not complete in the current session.
+- Hunyuan3D-2mv remains a pending or cloud-assisted research path, not a blocker for the MVP.
 
 #### Experimental Backend: TRELLIS
 
@@ -202,7 +208,7 @@ Non-goal for MVP:
 2. Each view is preprocessed and converted into a control map.
 3. ControlNet generates consistent rendered views or normalized references.
 4. Hunyuan3D-2mv is evaluated for multi-view shape generation.
-5. If Hunyuan3D-2mv is not feasible locally, three-view support remains a data/evaluation module while SF3D uses the best side/profile render as baseline input.
+5. If Hunyuan3D-2mv is not feasible locally, three-view support remains a data/evaluation module while Hunyuan3D-2mini uses the best ControlNet-rendered side/profile view as the preferred local backend.
 
 ## Evaluation Plan
 
@@ -226,7 +232,7 @@ Metrics and qualitative checks:
 
 ## Current Open Decisions
 
-- Whether to proceed with Hunyuan3D-2mv shape-only testing.
+- Whether to retry Hunyuan3D-2mv locally after completing the turbo checkpoint download, or move it to cloud-assisted evaluation.
 - Whether the first UI supports three-view upload immediately or starts with single-view and adds three-view in the next phase.
 - How much shoe-specific dataset preparation is expected for the graduation deliverable.
 - How to define an acceptable internal-structure quality threshold for the MVP.

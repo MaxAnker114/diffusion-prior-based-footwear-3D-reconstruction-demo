@@ -12,7 +12,7 @@ The original TRELLIS-first route has been revised after local VRAM testing. TREL
 
 - **ControlNet** for sketch-to-render adaptation before 3D reconstruction.
 - **Hunyuan3D-2mini** as the current preferred local shape-generation backend after visual review.
-- **Hunyuan3D-2mv** as the next multi-view candidate for the three-view shoe sketch path.
+- **Hunyuan3D-2mv** as a pending multi-view candidate for the three-view shoe sketch path.
 - **Stable Fast 3D (SF3D)** as a stable baseline/fallback backend.
 
 ## Goals
@@ -40,7 +40,7 @@ ControlNet sketch-domain adaptation
         v
 Image-to-3D backend
   - Hunyuan3D-2mini preferred shape backend
-  - Hunyuan3D-2mv multi-view candidate
+  - Hunyuan3D-2mv pending multi-view candidate
   - SF3D baseline/fallback
   - TRELLIS experimental comparison
         |
@@ -103,11 +103,11 @@ Gradio demo and paper evaluation assets
 - [x] Complete Hunyuan3D pre-installation candidate evaluation.
 - [x] Install and smoke-test Hunyuan3D-2mini shape-only inference.
 - [x] Visually review Hunyuan3D-2mini output and promote it as the preferred shape backend.
-- [ ] Test Hunyuan3D-2mv shape-only inference.
+- [x] Attempt Hunyuan3D-2mv shape-only inference and record local blockers.
 - [ ] Add optional geometry-changing mesh cleanup/post-processing.
 - [ ] Build the Gradio demo UI.
 - [ ] Prepare paper evaluation materials.
 
 ## Current Next Step
 
-Phase 5C: test Hunyuan3D-2mv shape-only inference for the multi-view shoe sketch branch.
+Review Phase 5C, then proceed toward the stable MVP path using Hunyuan3D-2mini as the preferred backend.

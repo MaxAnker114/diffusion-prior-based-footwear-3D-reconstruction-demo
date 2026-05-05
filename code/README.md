@@ -77,3 +77,21 @@ python code/reconstruction/run_hunyuan3d_shape.py \
 ```
 
 The runner uses Hunyuan3D shape generation only. It does not load the texture pipeline.
+
+For Hunyuan3D-2mv multi-view experiments, pass one or more named views:
+
+```bash
+python code/reconstruction/run_hunyuan3d_shape.py \
+  --run-id phase5c_hunyuan2mv_patent_pseudo3view \
+  --model-path tencent/Hunyuan3D-2mv \
+  --subfolder hunyuan3d-dit-v2-mv \
+  --variant fp16 \
+  --steps 30 \
+  --octree-resolution 256 \
+  --num-chunks 20000 \
+  --left code/test_assets/patent_sketches/usd247201s_sport_shoe/views/left_side_fig3_clean.png \
+  --right code/test_assets/patent_sketches/usd247201s_sport_shoe/views/right_side_fig4_clean.png \
+  --back code/test_assets/patent_sketches/usd247201s_sport_shoe/views/rear_fig5.png
+```
+
+Current note: Hunyuan3D-2mv has not passed local smoke testing yet on the current 8GB GPU.
