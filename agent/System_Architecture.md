@@ -133,6 +133,13 @@ Current Phase 5A decision:
 - Keep Hunyuan3D-2.1 as a cloud/fine-tuning research candidate rather than the next local install target.
 - Do not enable Hunyuan texture generation until shape-only inference is stable on the current GPU.
 
+Current Phase 5B result:
+
+- Hunyuan3D-2mini shape-only inference is locally feasible on the RTX 4060 Laptop GPU.
+- The first smoke test used about `4436 MB` peak CUDA memory and exported a valid watertight GLB.
+- Hunyuan3D should remain a research/comparison backend until visual quality is reviewed.
+- Hunyuan3D-2mv is now the next logical candidate for the multi-view branch.
+
 #### Experimental Backend: TRELLIS
 
 Role:
@@ -216,7 +223,8 @@ Metrics and qualitative checks:
 
 ## Current Open Decisions
 
-- Whether to proceed with local Hunyuan3D-2mini installation and shape-only smoke testing.
+- Whether the first Hunyuan3D-2mini output is visually useful enough to justify deeper Hunyuan comparison.
+- Whether to proceed with Hunyuan3D-2mv shape-only testing.
 - Whether the first UI supports three-view upload immediately or starts with single-view and adds three-view in the next phase.
 - How much shoe-specific dataset preparation is expected for the graduation deliverable.
 - How to define an acceptable internal-structure quality threshold for the MVP.

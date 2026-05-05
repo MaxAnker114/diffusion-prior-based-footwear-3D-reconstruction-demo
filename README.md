@@ -99,11 +99,12 @@ Gradio demo and paper evaluation assets
 - [x] Build the CLI end-to-end MVP.
 - [x] Add non-destructive mesh reporting for paper/UI metrics.
 - [x] Complete Hunyuan3D pre-installation candidate evaluation.
-- [ ] Install and smoke-test Hunyuan3D-2mini shape-only inference.
+- [x] Install and smoke-test Hunyuan3D-2mini shape-only inference.
+- [ ] Visually review Hunyuan3D-2mini output and test Hunyuan3D-2mv shape-only inference.
 - [ ] Add optional geometry-changing mesh cleanup/post-processing.
 - [ ] Build the Gradio demo UI.
 - [ ] Prepare paper evaluation materials.
 
 ## Current Next Step
 
-Review the Phase 5A Hunyuan3D candidate evaluation, then decide whether to install a separate `hunyuan3d` WSL environment for Hunyuan3D-2mini shape-only smoke testing.
+Review the Phase 5B Hunyuan3D-2mini smoke test result, then decide whether to test Hunyuan3D-2mv shape-only inference.

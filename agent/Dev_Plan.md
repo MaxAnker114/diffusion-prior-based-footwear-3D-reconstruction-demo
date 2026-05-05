@@ -223,7 +223,7 @@ Human Checkpoint:
 
 ## Phase 5 - Hunyuan3D Candidate Evaluation
 
-Status: in progress. Phase 5A pre-installation candidate evaluation completed.
+Status: in progress. Phase 5A pre-installation candidate evaluation completed. Phase 5B Hunyuan3D-2mini shape-only smoke test passed.
 
 Goal:
 
@@ -244,6 +244,19 @@ Phase 5A Results:
 - Full local 3D fine-tuning is not realistic on this machine; ControlNet remains the practical local adaptation/fine-tuning path.
 - Evaluation report: `agent/Hunyuan3D_Candidate_Evaluation.md`.
 
+Phase 5B Results:
+
+- Created isolated WSL conda environment `hunyuan3d`.
+- Installed PyTorch CUDA `2.4.0+cu118`, Hunyuan3D-2 dependencies, and editable `hy3dgen`.
+- Added runner `code/reconstruction/run_hunyuan3d_shape.py`.
+- Ran Hunyuan3D-2mini shape-only inference on the ControlNet-rendered patent shoe image.
+- Texture generation was intentionally disabled.
+- Output GLB was generated successfully.
+- Peak CUDA memory: `4436.453 MB`.
+- Inference time after model loading: `30.967 s`.
+- Mesh validation: valid GLB, 1 geometry, 117700 vertices, 235396 faces, watertight, 1 connected component.
+- Evaluation report: `agent/Hunyuan3D_2mini_Smoke_Test.md`.
+
 Tasks:
 
 - Install Hunyuan3D in a separate environment to avoid breaking SF3D.
@@ -254,17 +267,15 @@ Tasks:
 
 Tests:
 
-- Import Hunyuan3D modules.
-- Shape-only inference smoke test.
+- Import Hunyuan3D modules: passed with non-blocking `pymeshlab` plugin warnings.
+- Shape-only inference smoke test: passed with Hunyuan3D-2mini.
 - Optional texture generation test only if VRAM allows.
 - Record VRAM and runtime.
 
 Next test proposal:
 
-- Create a separate WSL conda environment named `hunyuan3d`.
-- Clone Hunyuan3D-2 under `code/third_party/Hunyuan3D-2`.
-- Install minimal shape-generation dependencies.
-- Run Hunyuan3D-2mini shape-only inference first.
+- Review the Hunyuan3D-2mini GLB visually.
+- Run Hunyuan3D-2mv shape-only inference after review.
 - Keep texture generation disabled.
 - Run generated mesh through `code/postprocess/mesh_report.py`.
 
@@ -277,7 +288,7 @@ Success criteria:
 
 Human Checkpoint:
 
-- Stop after Hunyuan3D feasibility report and ask for your review. Phase 5A is ready for review before installing Hunyuan3D locally.
+- Stop after Hunyuan3D feasibility report and ask for your review. Phase 5B is ready for review before Hunyuan3D-2mv testing.
 
 ## Phase 6 - Mesh Post-processing
 

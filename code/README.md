@@ -57,3 +57,23 @@ python code/postprocess/mesh_report.py \
 ```
 
 The report is non-destructive. It records vertices, faces, bounds, dimensions, thickness proxy ratio, connected components, surface area, watertight status, reliable volume availability, and structured warnings.
+
+## Hunyuan3D Shape-Only Runner
+
+Run from WSL with the `hunyuan3d` environment active:
+
+```bash
+source /home/anker/miniforge3/etc/profile.d/conda.sh
+conda activate hunyuan3d
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+cd /mnt/d/Final_Project
+python code/reconstruction/run_hunyuan3d_shape.py \
+  code/outputs/controlnet_render/usd247201s_sport_shoe/right_side_canny_render_seed115.png \
+  --run-id phase5b_hunyuan2mini_patent_render \
+  --steps 30 \
+  --octree-resolution 256 \
+  --num-chunks 20000 \
+  --seed 12345
+```
+
+The runner uses Hunyuan3D shape generation only. It does not load the texture pipeline.
