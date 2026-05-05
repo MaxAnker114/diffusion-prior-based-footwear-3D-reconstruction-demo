@@ -86,6 +86,11 @@ Static checks:
 - `build_demo()` construction smoke test
 - HTTP launch check on `http://127.0.0.1:7860`
 
+Phase 7B acceptance:
+
+- See `agent/Gradio_UI_Acceptance.md`.
+- Single-view `direct + hunyuan3d` UI-wrapper operation passed with a 5-step smoke test and a 30-step formal sample.
+
 Expected runtime behavior:
 
 - Uploading an image and pressing `Run` creates a new run directory under `code/outputs/pipeline_runs/`.
@@ -95,7 +100,7 @@ Expected runtime behavior:
 
 ## Phase 7A Decision
 
-Phase 7A is ready for local UI review after the server launch check passes.
+Phase 7A is implemented and Phase 7B single-view UI acceptance has passed.
 
 Recommended review input:
 

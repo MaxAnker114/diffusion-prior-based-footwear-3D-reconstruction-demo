@@ -354,7 +354,7 @@ Human Checkpoint:
 
 ## Phase 7 - Gradio UI Integration
 
-Status: in progress. Phase 7A Gradio UI MVP has been implemented around the existing CLI and is ready for local review after server validation.
+Status: completed for the current single-view MVP route. Phase 7A Gradio UI MVP was implemented around the existing CLI, and Phase 7B single-view UI acceptance passed.
 
 Goal:
 
@@ -385,6 +385,16 @@ Phase 7A Results:
 - Hunyuan3D-2mv is not exposed as a finished UI feature because Phase 5C did not pass locally.
 - Evaluation report: `agent/Gradio_UI_MVP.md`.
 
+Phase 7B Results:
+
+- Local Gradio page opened at `http://127.0.0.1:7860`.
+- Visible UI sections were confirmed for upload, backend selection, 3D preview, intermediate images, metrics, warnings, and output files.
+- UI-wrapper smoke test passed with run id `ui_20260505_214712`, `direct + hunyuan3d`, and 5 Hunyuan steps.
+- Formal UI sample passed with run id `ui_20260505_214848`, `direct + hunyuan3d`, and 30 Hunyuan steps.
+- The 30-step sample exported a valid GLB with 96774 vertices, 193544 faces, 1 connected component, and volume `0.571747`.
+- Remaining warning: `internal_structure_not_validated`.
+- Acceptance report: `agent/Gradio_UI_Acceptance.md`.
+
 Tests:
 
 - Local UI smoke test.
@@ -393,7 +403,7 @@ Tests:
 
 Human Checkpoint:
 
-- Stop after Phase 7A UI launch validation and ask for review before adding mesh cleanup controls or broader evaluation material generation.
+- Stop after Phase 7B UI acceptance and ask for review before adding mesh cleanup controls or broader evaluation material generation.
 
 ## Phase 8 - Paper Support and Evaluation Materials
 
@@ -436,6 +446,6 @@ Human Checkpoint:
 
 ## Current Next Step
 
-After Phase 7A Gradio UI integration, the recommended next step is:
+After Phase 7B Gradio UI acceptance, the recommended next step is:
 
-**Review the Gradio UI**, then decide whether Phase 6 geometry-changing mesh cleanup or Phase 8 paper evaluation materials should come first.
+**Begin Phase 8A paper/demo evaluation sample freezing**, unless visual review shows the UI needs immediate adjustment.

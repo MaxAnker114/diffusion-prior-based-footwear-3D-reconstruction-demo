@@ -73,6 +73,12 @@ Current Phase 7A behavior:
 - The UI displays GLB preview, intermediate images, mesh metrics, warnings, and output file links.
 - Multi-view Hunyuan3D-2mv is not exposed as complete UI functionality until the backend passes feasibility testing.
 
+Current Phase 7B validation:
+
+- The single-view `direct + hunyuan3d` UI route passed with both a 5-step smoke test and a 30-step formal sample.
+- The accepted formal sample is `ui_20260505_214848`.
+- The UI route is suitable for the current demo scope, with internal shoe structure still documented as a research limitation.
+
 ### 2. Sketch and View Preprocessing Layer
 
 Responsibilities:
