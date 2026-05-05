@@ -109,6 +109,47 @@ Interpretation:
 - The turbo path is not rejected technically, but it is blocked by incomplete model download in the current session.
 - Since standard 2mv is already heavy and unstable locally, turbo remains the better route to retry later if download/network conditions improve.
 
+## Attempt 3: Hunyuan3D-2mv Turbo Download via HF Mirror
+
+The project owner found a Hugging Face mirror configuration guide recommending `hf-mirror.com`.
+
+Temporary mirror configuration used:
+
+```bash
+export HF_ENDPOINT=https://hf-mirror.com
+export HF_HUB_DOWNLOAD_TIMEOUT=3600
+export HF_HUB_ETAG_TIMEOUT=300
+```
+
+Retry command:
+
+```python
+from huggingface_hub import snapshot_download
+
+snapshot_download(
+    repo_id="tencent/Hunyuan3D-2mv",
+    allow_patterns=[
+        "hunyuan3d-dit-v2-mv-turbo/config.yaml",
+        "hunyuan3d-dit-v2-mv-turbo/model.fp16.safetensors",
+    ],
+    resume_download=True,
+    max_workers=2,
+)
+```
+
+Result:
+
+- The mirror method is appropriate for Hugging Face downloads and should be reused for future large model downloads.
+- In this session, the 2mv turbo safetensors download still timed out after 30 minutes.
+- `hunyuan3d-dit-v2-mv-turbo/config.yaml` is cached.
+- `hunyuan3d-dit-v2-mv-turbo/model.fp16.safetensors` is still not fully cached.
+- The Hugging Face cache still contains incomplete blob files.
+
+Interpretation:
+
+- The failure is now classified as a download/cache availability blocker, not evidence that Hunyuan3D-2mv-turbo cannot run locally.
+- Hunyuan3D-2mv-turbo should be retried later with a fully downloaded checkpoint or a cloud machine with more reliable model download bandwidth.
+
 ## Environment Notes
 
 - Hunyuan3D-2mini remains validated and preferred for local shape generation.
@@ -122,7 +163,7 @@ Phase 5C status: not passed locally yet.
 Reason:
 
 - Standard Hunyuan3D-2mv failed before inference/mesh export.
-- Turbo Hunyuan3D-2mv could not be tested because the model download did not complete.
+- Turbo Hunyuan3D-2mv could not be tested because the model download did not complete, even after a temporary `HF_ENDPOINT=https://hf-mirror.com` mirror retry.
 
 Project route impact:
 
