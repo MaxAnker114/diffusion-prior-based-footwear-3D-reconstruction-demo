@@ -109,7 +109,7 @@ Human Checkpoint:
 
 ## Phase 3 - Designer Sketch-Domain Adaptation
 
-Status: in progress. Phase 3A technical validation passed on a public shoe line-art sketch.
+Status: in progress. Phase 3A technical validation passed on public shoe line art; Phase 3B single-view patent-sketch validation passed technically.
 
 Goal:
 
@@ -141,6 +141,17 @@ Phase 3A Results:
 - ControlNet Canny render succeeded with `lllyasviel/control_v11p_sd15_canny` and `runwayml/stable-diffusion-v1-5`.
 - Raw sketch -> SF3D and ControlNet render -> SF3D both exported readable GLB files.
 - Initial evidence suggests ControlNet-rendered input gives SF3D a fuller geometry range than raw line art.
+
+Phase 3B Results:
+
+- Expired sport-shoe patent drawing `USD247201S` collected from Google Patents.
+- Manual crop utility added for reproducible patent view extraction.
+- Single-view right-side patent sketch was preprocessed into Canny/Scribble controls.
+- Top-plan and bottom-plan views were also preprocessed for future multi-view experiments.
+- ControlNet render from right-side patent sketch succeeded.
+- Raw patent sketch -> SF3D and ControlNet patent render -> SF3D both exported readable GLB files.
+- ControlNet-rendered patent input again gave a somewhat fuller mesh than raw line input.
+- Limitation: patent-page crops are imperfect and not yet equivalent to clean designer three-view sketches.
 
 Success criteria:
 
