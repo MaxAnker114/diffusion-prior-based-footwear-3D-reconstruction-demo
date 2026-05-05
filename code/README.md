@@ -105,3 +105,28 @@ python code/reconstruction/run_hunyuan3d_shape.py \
 ```
 
 Current note: Hunyuan3D-2mv has not passed local smoke testing yet on the current 8GB GPU.
+
+## Gradio UI MVP
+
+Run the UI from WSL with the `hunyuan3d` environment because it already includes Gradio:
+
+```bash
+source /home/anker/miniforge3/etc/profile.d/conda.sh
+conda activate hunyuan3d
+cd /mnt/d/Final_Project
+GRADIO_ANALYTICS_ENABLED=False python code/ui/app.py --host 127.0.0.1 --port 7860
+```
+
+Helper script:
+
+```bash
+bash code/ui/run_gradio_ui.sh
+```
+
+Open:
+
+```text
+http://127.0.0.1:7860
+```
+
+The UI calls the existing CLI through the `trellis310` environment. It keeps Hunyuan3D-2mini as the default backend and SF3D as an optional comparison/fallback backend.

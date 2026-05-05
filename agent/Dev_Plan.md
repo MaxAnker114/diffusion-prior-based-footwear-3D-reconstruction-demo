@@ -354,6 +354,8 @@ Human Checkpoint:
 
 ## Phase 7 - Gradio UI Integration
 
+Status: in progress. Phase 7A Gradio UI MVP has been implemented around the existing CLI and is ready for local review after server validation.
+
 Goal:
 
 - Build the project demo UI after the core pipeline is stable.
@@ -373,6 +375,16 @@ Tasks:
 - Add progress and readable error messages.
 - Keep the UI academic, clear, and usable rather than purely decorative.
 
+Phase 7A Results:
+
+- Added `code/ui/app.py`.
+- The UI launches from the `hunyuan3d` environment because it already includes `gradio 6.14.0`.
+- The UI calls the existing CLI through the `trellis310` environment rather than duplicating inference code.
+- Supports single-view input upload, `direct/controlnet/both` input paths, and `hunyuan3d/sf3d/both` backends.
+- Displays copied input, normalized image, Canny control map, optional ControlNet render, generated GLB, mesh metrics, warning table, GLB file, and `summary.json`.
+- Hunyuan3D-2mv is not exposed as a finished UI feature because Phase 5C did not pass locally.
+- Evaluation report: `agent/Gradio_UI_MVP.md`.
+
 Tests:
 
 - Local UI smoke test.
@@ -381,7 +393,7 @@ Tests:
 
 Human Checkpoint:
 
-- Stop after UI integration and ask for final review.
+- Stop after Phase 7A UI launch validation and ask for review before adding mesh cleanup controls or broader evaluation material generation.
 
 ## Phase 8 - Paper Support and Evaluation Materials
 
@@ -424,6 +436,6 @@ Human Checkpoint:
 
 ## Current Next Step
 
-After Phase 5D CLI integration, the recommended next step is:
+After Phase 7A Gradio UI integration, the recommended next step is:
 
-**Review Phase 5D**, then begin Phase 7 Gradio UI integration using Hunyuan3D-2mini as the default backend and SF3D as a comparison/fallback backend.
+**Review the Gradio UI**, then decide whether Phase 6 geometry-changing mesh cleanup or Phase 8 paper evaluation materials should come first.

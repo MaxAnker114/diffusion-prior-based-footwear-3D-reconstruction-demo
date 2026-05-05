@@ -49,7 +49,7 @@ TRELLIS is no longer the primary runtime path because local testing showed that 
 
 ### 1. Web UI Layer
 
-Recommended first implementation: Gradio Blocks.
+Current implementation: Gradio Blocks in `code/ui/app.py`.
 
 Inputs:
 
@@ -64,6 +64,14 @@ Outputs:
 - Generated or normalized shoe render.
 - Final 3D model preview via `gradio.Model3D`.
 - Export files: GLB as the default, OBJ as optional.
+
+Current Phase 7A behavior:
+
+- The UI launches from the `hunyuan3d` conda environment because it already contains Gradio.
+- The UI calls `code/pipeline/cli_mvp.py` through the `trellis310` environment.
+- The existing CLI then switches to Hunyuan3D-2mini or SF3D as selected.
+- The UI displays GLB preview, intermediate images, mesh metrics, warnings, and output file links.
+- Multi-view Hunyuan3D-2mv is not exposed as complete UI functionality until the backend passes feasibility testing.
 
 ### 2. Sketch and View Preprocessing Layer
 

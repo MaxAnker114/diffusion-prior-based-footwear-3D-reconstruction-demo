@@ -64,6 +64,7 @@ Gradio demo and paper evaluation assets
 |   |-- Hunyuan3D_CLI_Integration.md
 |-- code/
 |   |-- README.md
+|   |-- ui/
 |-- paper/
 |   |-- graduation midterm PDF and paper assets
 |-- .gitattributes
@@ -77,6 +78,7 @@ Gradio demo and paper evaluation assets
 - [Development Plan](agent/Dev_Plan.md)
 - [Code Directory Notes](code/README.md)
 - [Hunyuan3D CLI Integration](agent/Hunyuan3D_CLI_Integration.md)
+- [Gradio UI MVP](agent/Gradio_UI_MVP.md)
 
 ## Hardware Target
 
@@ -107,10 +109,10 @@ Gradio demo and paper evaluation assets
 - [x] Visually review Hunyuan3D-2mini output and promote it as the preferred shape backend.
 - [x] Attempt Hunyuan3D-2mv shape-only inference and record local blockers.
 - [x] Integrate Hunyuan3D-2mini into the CLI MVP as the default backend.
+- [x] Build the first Gradio UI MVP around the CLI pipeline.
 - [ ] Add optional geometry-changing mesh cleanup/post-processing.
-- [ ] Build the Gradio demo UI.
 - [ ] Prepare paper evaluation materials.
 
 ## Current Next Step
 
-Review Phase 5D, then begin the Gradio UI around the stable Hunyuan3D-2mini CLI path.
+Review Phase 7A Gradio UI, then decide whether to add mesh cleanup controls or prepare paper evaluation runs.
