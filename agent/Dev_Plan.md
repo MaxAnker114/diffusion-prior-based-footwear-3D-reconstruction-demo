@@ -223,6 +223,8 @@ Human Checkpoint:
 
 ## Phase 5 - Hunyuan3D Candidate Evaluation
 
+Status: in progress. Phase 5A pre-installation candidate evaluation completed.
+
 Goal:
 
 - Decide whether Hunyuan3D should become the fine-tuning/research branch of the project.
@@ -232,6 +234,15 @@ Candidate order:
 1. `Hunyuan3D-2mini` for low VRAM local shape generation.
 2. `Hunyuan3D-2mv` for three-view/multi-view alignment with the thesis topic.
 3. `Hunyuan3D-2.1` for fine-tuning potential, if hardware or cloud resources permit.
+
+Phase 5A Results:
+
+- Official Hunyuan3D sources were reviewed before installing anything.
+- Hunyuan3D-2mini is the safest first local test target because it is the 0.6B shape model.
+- Hunyuan3D-2mv is the best conceptual match for the project's three-view shoe-sketch route, but should be tested only after a basic Hunyuan environment works.
+- Hunyuan3D-2.1 is not a good local MVP backend on the current 8GB GPU because its official memory guidance is above the local VRAM budget, but it remains a strong cloud/fine-tuning research candidate.
+- Full local 3D fine-tuning is not realistic on this machine; ControlNet remains the practical local adaptation/fine-tuning path.
+- Evaluation report: `agent/Hunyuan3D_Candidate_Evaluation.md`.
 
 Tasks:
 
@@ -248,6 +259,15 @@ Tests:
 - Optional texture generation test only if VRAM allows.
 - Record VRAM and runtime.
 
+Next test proposal:
+
+- Create a separate WSL conda environment named `hunyuan3d`.
+- Clone Hunyuan3D-2 under `code/third_party/Hunyuan3D-2`.
+- Install minimal shape-generation dependencies.
+- Run Hunyuan3D-2mini shape-only inference first.
+- Keep texture generation disabled.
+- Run generated mesh through `code/postprocess/mesh_report.py`.
+
 Success criteria:
 
 - We can clearly classify Hunyuan3D as one of:
@@ -257,7 +277,7 @@ Success criteria:
 
 Human Checkpoint:
 
-- Stop after Hunyuan3D feasibility report and ask for your review.
+- Stop after Hunyuan3D feasibility report and ask for your review. Phase 5A is ready for review before installing Hunyuan3D locally.
 
 ## Phase 6 - Mesh Post-processing
 

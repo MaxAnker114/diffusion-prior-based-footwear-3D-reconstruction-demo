@@ -98,11 +98,12 @@ Gradio demo and paper evaluation assets
 - [x] Validate ControlNet sketch-to-render adaptation.
 - [x] Build the CLI end-to-end MVP.
 - [x] Add non-destructive mesh reporting for paper/UI metrics.
-- [ ] Evaluate Hunyuan3D as a candidate backend/fine-tuning path.
+- [x] Complete Hunyuan3D pre-installation candidate evaluation.
+- [ ] Install and smoke-test Hunyuan3D-2mini shape-only inference.
 - [ ] Add optional geometry-changing mesh cleanup/post-processing.
 - [ ] Build the Gradio demo UI.
 - [ ] Prepare paper evaluation materials.
 
 ## Current Next Step
 
-Review the Phase 4B mesh report layer, then decide whether to continue with conservative mesh cleanup comparison, Hunyuan3D candidate evaluation, or Gradio UI integration.
+Review the Phase 5A Hunyuan3D candidate evaluation, then decide whether to install a separate `hunyuan3d` WSL environment for Hunyuan3D-2mini shape-only smoke testing.

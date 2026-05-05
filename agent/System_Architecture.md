@@ -126,6 +126,13 @@ Risks:
 - Full 3D model fine-tuning may need cloud GPU or a greatly reduced experiment.
 - If local fine-tuning is infeasible, the project should move fine-tuning effort to the 2D ControlNet adaptation layer and use Hunyuan3D only for inference/evaluation.
 
+Current Phase 5A decision:
+
+- Test Hunyuan3D-2mini first as the low-parameter local shape-only candidate.
+- Test Hunyuan3D-2mv second because it best matches the three-view shoe-sketch direction.
+- Keep Hunyuan3D-2.1 as a cloud/fine-tuning research candidate rather than the next local install target.
+- Do not enable Hunyuan texture generation until shape-only inference is stable on the current GPU.
+
 #### Experimental Backend: TRELLIS
 
 Role:
@@ -209,7 +216,7 @@ Metrics and qualitative checks:
 
 ## Current Open Decisions
 
-- Whether Hunyuan3D evaluation should start from `Hunyuan3D-2mini`, `Hunyuan3D-2mv`, or `Hunyuan3D-2.1`.
+- Whether to proceed with local Hunyuan3D-2mini installation and shape-only smoke testing.
 - Whether the first UI supports three-view upload immediately or starts with single-view and adds three-view in the next phase.
 - How much shoe-specific dataset preparation is expected for the graduation deliverable.
 - How to define an acceptable internal-structure quality threshold for the MVP.
