@@ -11,3 +11,27 @@
 - `ui/`：Gradio demo。
 
 `code/third_party/` 用于本地第三方源码或实验依赖，默认不提交到 Git。
+
+## CLI MVP
+
+Run from WSL with the `trellis310` environment active:
+
+```bash
+source /home/anker/miniforge3/etc/profile.d/conda.sh
+conda activate trellis310
+cd /mnt/d/Final_Project
+python code/pipeline/cli_mvp.py \
+  code/test_assets/patent_sketches/usd247201s_sport_shoe/views/right_side_fig4_clean.png \
+  --run-id phase4_cli_smoke_patent_side \
+  --mode both \
+  --controlnet-steps 8 \
+  --texture-resolution 512
+```
+
+Modes:
+
+- `direct`: normalized sketch -> SF3D.
+- `controlnet`: sketch -> ControlNet render -> SF3D.
+- `both`: run both paths and compare reports.
+
+Runtime outputs are written under `code/outputs/pipeline_runs/<run_id>/` and are ignored by Git.

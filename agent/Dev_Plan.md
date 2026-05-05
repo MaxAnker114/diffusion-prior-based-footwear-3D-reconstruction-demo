@@ -166,6 +166,8 @@ Human Checkpoint:
 
 ## Phase 4 - End-to-End MVP Pipeline
 
+Status: in progress. Phase 4A CLI skeleton passed on the patent side-view sketch.
+
 Goal:
 
 - Connect designer-sketch preprocessing, optional ControlNet rendering, SF3D reconstruction, post-processing, and GLB preview.
@@ -182,6 +184,14 @@ Tasks:
 - Add fallback behavior when ControlNet or SF3D fails.
 - Save intermediate outputs for paper screenshots and debugging.
 
+Phase 4A Results:
+
+- CLI orchestrator implemented at `code/pipeline/cli_mvp.py`.
+- Supports `direct`, `controlnet`, and `both` modes.
+- End-to-end smoke test passed with `right_side_fig4_clean.png`.
+- The CLI generated preprocessing outputs, a ControlNet render, two SF3D GLBs, and JSON reports.
+- `controlnet_render` and `direct_sketch` GLB outputs both passed `trimesh` validation.
+
 Tests:
 
 - Single-view designer sketch end-to-end CLI smoke test.
@@ -197,7 +207,7 @@ Success criteria:
 
 Human Checkpoint:
 
-- Stop after CLI MVP and ask for your review before UI work.
+- Stop after CLI MVP and ask for your review before UI work. Phase 4A is ready for review before adding post-processing or UI integration.
 
 ## Phase 5 - Hunyuan3D Candidate Evaluation
 
