@@ -104,10 +104,62 @@ Phase 4A passed as a CLI skeleton:
 - Mesh reports are generated.
 - Failure handling is basic but readable through command exceptions.
 
+## Phase 4B Mesh Report Layer
+
+Implementation:
+
+- `code/postprocess/mesh_report.py`
+- `code/pipeline/cli_mvp.py` now calls this module instead of the earlier minimal `validate_glb` helper.
+
+The new report is non-destructive. It reads generated GLB files and records metrics intended for paper tables and later Gradio display:
+
+- `geometry_count`
+- `total_vertices`
+- `total_faces`
+- aggregate bounds and dimensions
+- `smallest_to_longest_ratio` as a thickness/depth proxy
+- connected-component count and largest component face count
+- surface area
+- watertight status
+- reliable volume only when the mesh is watertight
+- structured warnings, including the internal-structure limitation
+
+Smoke test:
+
+```bash
+python code/pipeline/cli_mvp.py \
+  code/test_assets/patent_sketches/usd247201s_sport_shoe/views/right_side_fig4_clean.png \
+  --run-id phase4b_report_smoke_direct \
+  --mode direct \
+  --texture-resolution 512
+```
+
+Result:
+
+- GLB generated successfully.
+- New `mesh_report.json` generated successfully.
+- Direct sketch output remained valid.
+- Vertices: `6886`
+- Faces: `11536`
+- Bounds dimensions: `[0.962311, 0.319453, 0.146011]`
+- Thickness proxy ratio: `0.15173`
+- Connected components: `211`
+- Warnings included:
+  - `thin_geometry`
+  - `many_components`
+  - `non_watertight_mesh`
+  - `internal_structure_not_validated`
+
+Comparison note from earlier Phase 4A outputs:
+
+- ControlNet render path thickness proxy ratio: approximately `0.34893`.
+- Direct sketch path thickness proxy ratio: approximately `0.15173`.
+- This supports the earlier observation that ControlNet-rendered input tends to produce fuller SF3D geometry than raw line input, while still requiring manual internal-structure review.
+
 Remaining work before Phase 4 can be considered complete:
 
 - Add a cleaner run manifest format with selected prompt/settings only, instead of storing full command stderr.
-- Add optional post-processing once Phase 6 starts.
+- Add optional geometry-changing post-processing once Phase 6 starts.
 - Add better visual QA hooks for generated GLB.
 - Test on a cleaner single-view designer sketch and a curated three-view set.
 - Decide whether the default mode should be `controlnet` or `both` for paper experiments.

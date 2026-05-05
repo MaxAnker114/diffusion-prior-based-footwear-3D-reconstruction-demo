@@ -149,10 +149,20 @@ Tools:
 Responsibilities:
 
 - Load generated GLB/OBJ.
+- Generate a non-destructive mesh report for paper evidence and later UI display.
+- Record geometry count, vertices, faces, bounds, dimensions, thickness proxy, surface area, watertight status, volume availability, and connected components.
+- Emit structured warnings for thin geometry, many fragments, non-watertight outputs, and internal-structure uncertainty.
 - Apply conservative smoothing, decimation, and mesh cleanup.
 - Preserve shoe silhouette and important design details.
 - Export GLB for UI preview and OBJ for optional downstream inspection.
 - Detect and report obvious mesh issues such as empty geometry, broken exports, or extreme internal artifacts when possible.
+
+Current implementation:
+
+- `code/postprocess/mesh_report.py` implements the non-destructive reporting portion.
+- The report does not modify mesh geometry.
+- The report can indicate suspicious proxy signals, but it cannot automatically prove whether shoe interiors are anatomically or structurally correct.
+- Geometry-changing smoothing/cleanup remains an optional later step and should be compared against the original GLB before becoming a default.
 
 Non-goal for MVP:
 

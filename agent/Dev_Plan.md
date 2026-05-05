@@ -166,7 +166,7 @@ Human Checkpoint:
 
 ## Phase 4 - End-to-End MVP Pipeline
 
-Status: in progress. Phase 4A CLI skeleton passed on the patent side-view sketch.
+Status: in progress. Phase 4A CLI skeleton passed on the patent side-view sketch. Phase 4B mesh reporting layer passed a direct smoke test.
 
 Goal:
 
@@ -192,6 +192,18 @@ Phase 4A Results:
 - The CLI generated preprocessing outputs, a ControlNet render, two SF3D GLBs, and JSON reports.
 - `controlnet_render` and `direct_sketch` GLB outputs both passed `trimesh` validation.
 
+Phase 4B Results:
+
+- Mesh reporting was moved into `code/postprocess/mesh_report.py`.
+- The CLI now writes a paper/UI-friendly mesh report for each generated GLB.
+- The report includes:
+  - GLB existence, file size, scene type, geometry count, vertices, and faces.
+  - Aggregate bounds, dimensions, and smallest-to-longest dimension ratio as a thickness proxy.
+  - Surface area, watertight status, reliable volume only when all geometry is watertight, and connected-component counts.
+  - Structured warnings for thin geometry, many fragments, non-watertight meshes, and the unresolved internal-structure risk.
+  - `display_summary` rows designed for later Gradio tables.
+- A direct CLI smoke test passed with run id `phase4b_report_smoke_direct`.
+
 Tests:
 
 - Single-view designer sketch end-to-end CLI smoke test.
@@ -207,7 +219,7 @@ Success criteria:
 
 Human Checkpoint:
 
-- Stop after CLI MVP and ask for your review before UI work. Phase 4A is ready for review before adding post-processing or UI integration.
+- Stop after CLI MVP/reporting work and ask for your review before UI work or destructive mesh cleanup. Phase 4B is ready for review.
 
 ## Phase 5 - Hunyuan3D Candidate Evaluation
 
@@ -256,11 +268,17 @@ Goal:
 Tasks:
 
 - Load generated GLB/OBJ with `trimesh` or `open3d`.
+- Generate non-destructive mesh diagnostics for paper and UI display.
 - Apply conservative smoothing.
 - Add optional decimation or mesh cleanup.
 - Preserve original and processed outputs for comparison.
 - Export final GLB as the UI default.
 - Add basic inspection/reporting for internal mesh artifacts where feasible.
+
+Current status:
+
+- Non-destructive mesh diagnostics are implemented in Phase 4B.
+- Geometry-changing cleanup, smoothing, and decimation remain pending and require visual comparison before they become default behavior.
 
 Tests:
 
@@ -345,6 +363,6 @@ Human Checkpoint:
 
 ## Current Next Step
 
-After Phase 2 baseline validation, the recommended next step is:
+After Phase 4B mesh reporting validation, the recommended next step is:
 
-**Phase 3: Designer Sketch-Domain Adaptation.**
+**Human review of the new report layer**, then choose between conservative mesh cleanup comparison, Hunyuan3D candidate evaluation, or Gradio UI integration.

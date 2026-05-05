@@ -6,7 +6,7 @@ The project is being developed as a graduation project. Its current priority is 
 
 ## Status
 
-Current stage: planning and environment validation.
+Current stage: CLI MVP and mesh reporting.
 
 The original TRELLIS-first route has been revised after local VRAM testing. TRELLIS can be imported and can run limited Gaussian output on the current machine, but mesh extraction is not reliable within 8GB VRAM. The MVP route is now:
 
@@ -94,14 +94,15 @@ Gradio demo and paper evaluation assets
 - [x] Validate WSL, Python, CUDA, PyTorch, xformers, TRELLIS import, and ControlNet import.
 - [x] Revise the project route based on 8GB VRAM constraints.
 - [x] Initialize Git and push the first stable planning baseline.
-- [ ] Evaluate Stable Fast 3D on a shoe image and verify GLB export.
-- [ ] Validate ControlNet sketch-to-render adaptation.
-- [ ] Build the CLI end-to-end MVP.
+- [x] Evaluate Stable Fast 3D on a shoe image and verify GLB export.
+- [x] Validate ControlNet sketch-to-render adaptation.
+- [x] Build the CLI end-to-end MVP.
+- [x] Add non-destructive mesh reporting for paper/UI metrics.
 - [ ] Evaluate Hunyuan3D as a candidate backend/fine-tuning path.
-- [ ] Add mesh post-processing.
+- [ ] Add optional geometry-changing mesh cleanup/post-processing.
 - [ ] Build the Gradio demo UI.
 - [ ] Prepare paper evaluation materials.
 
 ## Current Next Step
 
-Step 8: evaluate the Stable Fast 3D baseline in WSL and verify that one shoe image can produce a GLB within the 8GB VRAM limit.
+Review the Phase 4B mesh report layer, then decide whether to continue with conservative mesh cleanup comparison, Hunyuan3D candidate evaluation, or Gradio UI integration.

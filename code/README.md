@@ -1,20 +1,23 @@
 # Code
 
-此目录用于放置后续项目代码、推理脚本、UI 入口、实验工具和本地运行配置。
+This directory contains the project implementation modules, experiment utilities, and local test assets.
 
-计划中的主要模块：
+Planned and current modules:
 
-- `preprocess/`：鞋履图像裁剪、背景处理、Canny/Scribble 控制图生成。
-- `controlnet/`：草图到鞋履渲染图的 2D 适配。
-- `reconstruction/`：SF3D baseline 与 Hunyuan3D 候选后端。
-- `postprocess/`：GLB/OBJ mesh 清理、平滑、减面。
-- `ui/`：Gradio demo。
+- `preprocess/`: shoe sketch cropping, background cleanup, Canny/Scribble control map generation.
+- `controlnet/`: 2D sketch-to-render adaptation before 3D reconstruction.
+- `pipeline/`: command-line orchestration for the current MVP.
+- `postprocess/`: non-destructive GLB/OBJ mesh reporting first; cleanup/smoothing will be added only after review.
+- `reconstruction/`: reserved for future backend wrappers around SF3D and Hunyuan3D.
+- `ui/`: reserved for the later Gradio demo.
 
-`code/third_party/` 用于本地第三方源码或实验依赖，默认不提交到 Git。
+`code/third_party/` is used for local third-party source checkouts such as Stable Fast 3D and is intentionally ignored by Git.
+
+Runtime outputs are written under `code/outputs/` and are also ignored by Git.
 
 ## CLI MVP
 
-Run from WSL with the `trellis310` environment active:
+Run from WSL:
 
 ```bash
 source /home/anker/miniforge3/etc/profile.d/conda.sh
@@ -34,4 +37,23 @@ Modes:
 - `controlnet`: sketch -> ControlNet render -> SF3D.
 - `both`: run both paths and compare reports.
 
-Runtime outputs are written under `code/outputs/pipeline_runs/<run_id>/` and are ignored by Git.
+Each run writes:
+
+- preprocessing outputs
+- optional ControlNet render
+- SF3D GLB output
+- `reports/summary.json`
+- `reports/mesh_report.json`
+
+## Standalone Mesh Report
+
+Generate a paper/UI-friendly mesh report for an existing GLB:
+
+```bash
+python code/postprocess/mesh_report.py \
+  code/outputs/pipeline_runs/<run_id>/sf3d/direct_sketch/0/mesh.glb \
+  --project-root /mnt/d/Final_Project \
+  --output code/outputs/pipeline_runs/<run_id>/reports/direct_mesh_report_v2.json
+```
+
+The report is non-destructive. It records vertices, faces, bounds, dimensions, thickness proxy ratio, connected components, surface area, watertight status, reliable volume availability, and structured warnings.

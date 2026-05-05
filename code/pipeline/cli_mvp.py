@@ -11,14 +11,13 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 
-import trimesh
-
 
 CODE_DIR = Path(__file__).resolve().parents[1]
 PROJECT_ROOT = CODE_DIR.parent
 if str(CODE_DIR) not in sys.path:
     sys.path.insert(0, str(CODE_DIR))
 
+from postprocess.mesh_report import build_mesh_report  # noqa: E402
 from preprocess.sketch_preprocess import preprocess_sketch  # noqa: E402
 
 
@@ -127,49 +126,6 @@ def run_sf3d(
     return run_command(["bash", "-lc", command], cwd=PROJECT_ROOT)
 
 
-def validate_glb(glb_path: Path) -> dict:
-    loaded = trimesh.load(glb_path)
-    report: dict = {
-        "path": relpath(glb_path),
-        "type": type(loaded).__name__,
-        "exists": glb_path.exists(),
-        "size_bytes": glb_path.stat().st_size if glb_path.exists() else 0,
-    }
-
-    if hasattr(loaded, "geometry"):
-        geometries = []
-        for name, geom in loaded.geometry.items():
-            geometries.append(
-                {
-                    "name": name,
-                    "vertices": int(len(getattr(geom, "vertices", []))),
-                    "faces": int(len(getattr(geom, "faces", []))),
-                    "bounds": getattr(geom, "bounds", []).tolist()
-                    if hasattr(getattr(geom, "bounds", None), "tolist")
-                    else None,
-                }
-            )
-        report["geometry_count"] = len(geometries)
-        report["geometries"] = geometries
-    else:
-        report["geometry_count"] = 1
-        report["geometries"] = [
-            {
-                "name": "mesh",
-                "vertices": int(len(getattr(loaded, "vertices", []))),
-                "faces": int(len(getattr(loaded, "faces", []))),
-                "bounds": getattr(loaded, "bounds", []).tolist()
-                if hasattr(getattr(loaded, "bounds", None), "tolist")
-                else None,
-            }
-        ]
-
-    report["is_valid"] = any(
-        geom["vertices"] > 0 and geom["faces"] > 0 for geom in report["geometries"]
-    )
-    return report
-
-
 def write_json(path: Path, data: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
@@ -262,7 +218,10 @@ def main() -> None:
             texture_resolution=args.texture_resolution,
         )
         command_results["sf3d_controlnet"] = asdict(result)
-        mesh_reports["controlnet_render"] = validate_glb(sf3d_output / "0" / "mesh.glb")
+        mesh_reports["controlnet_render"] = build_mesh_report(
+            sf3d_output / "0" / "mesh.glb",
+            project_root=PROJECT_ROOT,
+        )
 
     if args.mode in {"direct", "both"}:
         print("step: sf3d direct from normalized sketch")
@@ -276,7 +235,10 @@ def main() -> None:
             texture_resolution=args.texture_resolution,
         )
         command_results["sf3d_direct"] = asdict(result)
-        mesh_reports["direct_sketch"] = validate_glb(sf3d_output / "0" / "mesh.glb")
+        mesh_reports["direct_sketch"] = build_mesh_report(
+            sf3d_output / "0" / "mesh.glb",
+            project_root=PROJECT_ROOT,
+        )
 
     summary = {
         "run_id": args.run_id,
