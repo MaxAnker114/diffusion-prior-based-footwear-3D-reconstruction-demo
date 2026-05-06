@@ -1,0 +1,154 @@
+% !TEX root = ../main.tex
+
+\chapter{实验与分析}
+
+本章围绕本文实现的鞋履草图到三维网格模型原型系统进行实验与分析。实验目标是验证当前本地流程是否能够稳定生成可预览GLB模型，并在统一输入和网格报告框架下比较SF3D基线、Hunyuan3D-2mini主后端和ControlNet草图域适配路径的表现。实验重点包括输出文件可用性、外观形状合理性、网格复杂度、厚度代理指标、显存和运行时间，以及三视图融合与内部结构表达仍需进一步完善的问题。
+
+\section{实验设置}
+
+本文实验在本地WSL环境下完成，硬件为NVIDIA GeForce RTX 4060 Laptop GPU，显存容量为8GB。软件环境包括用于主流水线和ControlNet的主控环境、用于Hunyuan3D-2mini推理和Gradio界面的\texttt{hunyuan3d}环境，以及用于SF3D基线的\texttt{sf3d}环境。Hunyuan3D实验使用shape-only路径，关闭纹理生成；SF3D实验使用其单图像到GLB输出路径；ControlNet实验使用Canny控制图和鞋履产品概念渲染提示词。
+
+实验样例来自项目中已经冻结的Phase 8A评估集合。该集合包含四个样例，分别记为S1至S4。为了符合“先建立稳定基线，再讨论主后端效果”的实验叙事，本章先分析SF3D基线样例S3和S4，再分析Hunyuan3D-2mini样例S1和S2。S3是SF3D直接草图输入基线，S4是SF3D在ControlNet渲染图输入下的基线；S1是Gradio界面接受的单视图鞋履草图输入，并通过Hunyuan3D-2mini直接生成GLB模型；S2使用ControlNet生成的鞋履渲染图作为输入，再通过Hunyuan3D-2mini生成模型。
+
+表\ref{tab:eval-samples}给出了四个样例的基本设置。所有样例的原始输出和运行摘要保存在\texttt{code/outputs/}目录下，论文使用的索引、指标表和截图素材保存在\texttt{paper/evaluation\_samples/}目录下。
+
+\begin{table}[htbp]
+  \centering
+  \caption{实验样例设置}
+  \label{tab:eval-samples}
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}p{0.09\textwidth}p{0.25\textwidth}p{0.23\textwidth}p{0.30\textwidth}@{}}
+    \toprule
+    样例 & 输入类型 & 后端 & 路径说明 \\
+    \midrule
+    S3 & 专利侧视鞋履草图 & SF3D & 直接输入基线 \\
+    S4 & ControlNet渲染图 & SF3D & 草图域适配基线 \\
+    S1 & 专利侧视鞋履草图 & Hunyuan3D-2mini & Gradio接受路径，直接输入 \\
+    S2 & ControlNet渲染图 & Hunyuan3D-2mini & 草图域适配后输入 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+本文采用定量指标和人工观察相结合的评价方式。定量指标包括顶点数、面数、连通组件数量、包围盒尺寸、厚度代理比例、水密性、体积、运行时间和峰值显存。人工观察主要关注鞋履外部轮廓、鞋底厚度、鞋面区域、鞋头和后跟形状，以及鞋口和内部空腔是否具有明显不合理之处。当前阶段尚未将已整理中的鞋履草图-三维模型配对数据纳入大规模评测，因此本章不计算Chamfer Distance或法向一致性等有监督几何指标，而是使用可复现网格指标支撑定性观察。
+
+为了体现本文任务与三视图鞋履设计图之间的关系，图\ref{fig:three-view-input-evidence}展示了项目测试资产中保留的俯视、侧视和底视图输入。当前冻结实验主要以侧视图和ControlNet渲染图完成稳定闭环验证，但这些视图为后续三视图融合提供了明确的数据组织基础。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{evaluation/phase8b_three_view_input_evidence.png}
+  \caption{实验使用的三视图鞋履草图输入证据}
+  \label{fig:three-view-input-evidence}
+\end{figure}
+
+\section{SF3D基线实验}
+
+SF3D作为稳定基线，用于比较直接草图输入和ControlNet渲染输入下的快速单图像到三维网格结果。图\ref{fig:sf3d-baseline-results}展示了S3和S4两个基线样例的输入、重建预览和网格指标。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{evaluation/phase8b_sf3d_baseline_results.png}
+  \caption{SF3D基线结果：直接草图输入与ControlNet渲染输入对比}
+  \label{fig:sf3d-baseline-results}
+\end{figure}
+
+S3是SF3D直接输入基线，输入为归一化后的鞋履侧视草图。该样例生成6866个顶点和11536个面，包围盒尺寸约为$[0.962311, 0.319453, 0.146011]$，厚度代理比例约为0.151731，运行时间约为21.9秒，峰值显存约为6171.602 MB。从视觉效果看，该结果能够生成可加载鞋履外形，但整体厚度较薄，鞋口和内部空间表达有限。
+
+S4是SF3D在ControlNet渲染图输入下的基线。该样例生成12087个顶点和18860个面，包围盒尺寸约为$[0.959802, 0.355144, 0.334904]$，厚度代理比例约为0.348921，运行时间约为23.2秒，峰值显存约为6171.811 MB。相比S3，S4的顶点数、面数和厚度代理比例均有所提升，说明ControlNet渲染图能够使SF3D生成更饱满的几何形状。这与第三章提出的草图域适配动机一致：直接线稿输入容易导致模型将物体理解得较扁，而渲染图输入能够提供更多体积和外观线索。
+
+总体而言，SF3D的优势是运行稳定、速度较快、输出GLB容易加载，适合承担系统基线和回退路径。其不足在于鞋履内部结构和复杂局部几何表达有限，尤其在直接草图输入下容易出现偏薄结果。因此，本文将SF3D用于建立实验参照，而不将其作为当前主后端。
+
+\section{Hunyuan3D-2mini实验结果}
+
+Hunyuan3D-2mini是本文当前主后端。S1是经过Gradio界面验证的主样例，其流程为单视图鞋履草图输入、预处理、直接送入Hunyuan3D-2mini、输出GLB模型和网格报告。图\ref{fig:s1-sample-sheet}展示了S1的输入、中间图像、三维预览和指标摘要。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{evaluation/phase8b_s1_sample_sheet.png}
+  \caption{S1主样例结果：单视图鞋履草图到Hunyuan3D-2mini生成模型}
+  \label{fig:s1-sample-sheet}
+\end{figure}
+
+S1输出模型包含96774个顶点和193544个面，连通组件数量为1，包围盒尺寸为$[1.993879, 0.728017, 0.722295]$，厚度代理比例为0.362256。该模型被检测为水密网格，体积为0.571747。运行时间约为65.5秒，Hunyuan3D runner记录的峰值显存约为4436.453 MB。上述结果说明，Hunyuan3D-2mini shape-only路径能够完成鞋履样例的本地推理，并生成可加载、连通且复杂度较高的GLB网格。
+
+S2使用ControlNet渲染图作为Hunyuan3D-2mini输入。该样例的目的是验证草图域适配模块能否作为Hunyuan3D前置输入路径。S2输出模型包含117700个顶点和235396个面，连通组件数量为1，厚度代理比例为0.311432，同样被检测为水密网格。运行时间约为67.1秒，峰值显存同样约为4436.453 MB。与S1相比，S2的顶点数和面数更高，说明ControlNet渲染图可以为Hunyuan3D生成提供更丰富的外观输入，但其输出是否更符合原始草图仍需要结合视觉审阅判断。
+
+图\ref{fig:hunyuan-results}进一步并列展示了S1和S2两个Hunyuan3D-2mini样例。S1强调直接草图输入到主后端的可行性，S2强调ControlNet渲染图作为中间输入时对外观细节和网格复杂度的影响。该对照能够说明本文并非只验证单一路径，而是同时保留了直接输入和草图域适配输入两种主后端实验方式。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{evaluation/phase8b_hunyuan_results.png}
+  \caption{Hunyuan3D-2mini结果对比：直接草图输入与ControlNet渲染输入}
+  \label{fig:hunyuan-results}
+\end{figure}
+
+从人工观察角度看，Hunyuan3D-2mini在鞋履外部形状上优于早期SF3D基线。它能够生成较完整的鞋体轮廓，并在鞋底、鞋面和后跟区域形成更连续的三维形状。项目人工审阅中也确认，Hunyuan3D-2mini生成的GLB外观明显好于SF3D结果，因此本文将其作为当前主后端。与此同时，Hunyuan3D-2mini结果仍保留\path{internal_structure_not_validated}警告，说明自动网格指标不能直接证明鞋口内部空间、鞋帮厚度和真实穿着腔体完全正确。
+
+\section{网格指标分析}
+
+表\ref{tab:mesh-metrics}汇总了S1至S4的主要网格指标。为了便于横向比较，表中保留顶点数、面数、厚度代理比例、运行时间和峰值显存。S3和S4来自早期SF3D报告，未记录连通组件、水密性和体积，因此相关指标在表中记为未记录。
+
+\begin{table}[htbp]
+  \centering
+  \caption{冻结样例的网格指标对比}
+  \label{tab:mesh-metrics}
+  \footnotesize
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular}{@{}p{0.06\textwidth}p{0.19\textwidth}p{0.11\textwidth}p{0.11\textwidth}p{0.12\textwidth}p{0.08\textwidth}p{0.10\textwidth}@{}}
+    \toprule
+    样例 & 后端 & 顶点数 & 面数 & 厚度比例 & 时间/s & 显存/MB \\
+    \midrule
+    S3 & SF3D & 6866 & 11536 & 0.151731 & 21.9 & 6171.602 \\
+    S4 & SF3D & 12087 & 18860 & 0.348921 & 23.2 & 6171.811 \\
+    S1 & Hunyuan3D-2mini & 96774 & 193544 & 0.362256 & 65.5 & 4436.453 \\
+    S2 & Hunyuan3D-2mini & 117700 & 235396 & 0.311432 & 67.1 & 4436.453 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+从网格复杂度看，Hunyuan3D-2mini输出明显比SF3D更密集。S1和S2的面数分别为193544和235396，而S3和S4的面数分别为11536和18860。更高的面数不必然代表更好的几何质量，但在本文样例中，它对应了更连续的鞋履外观和更细致的形状表达。SF3D输出较轻量，适合快速基线和预览，但在复杂鞋履结构表达上存在不足。
+
+从厚度代理比例看，S3的比例最低，为0.151731，说明直接草图输入下SF3D结果存在明显偏薄风险。S4提升到0.348921，说明ControlNet渲染图能够改善SF3D的体积感。S1和S2的厚度代理比例分别为0.362256和0.311432，处于相对合理范围，说明Hunyuan3D-2mini在本样例上没有出现明显扁平化问题。
+
+从显存使用看，Hunyuan3D-2mini样例峰值显存约为4436 MB，低于SF3D记录的约6172 MB。需要注意的是，这两个显存数值来自不同后端日志，统计方式可能不完全相同，因此不应将其理解为严格同条件显存基准。但从工程角度看，两者均能在本地环境中完成推理，而Hunyuan3D-2mini在当前shape-only设置下具备较好的可行性。
+
+图\ref{fig:comparison-grid}展示了四个样例的输入和生成模型对比，图\ref{fig:mesh-preview-strip}以更集中的方式展示四个生成网格的外观预览，图\ref{fig:metrics-table}展示了由冻结指标生成的表格图。这些图像均由已保存的运行结果离线生成，不重新运行模型，因此可作为论文和答辩演示中的稳定材料。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{evaluation/phase8b_comparison_grid.png}
+  \caption{S1--S4输入与生成模型对比}
+  \label{fig:comparison-grid}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{evaluation/phase8b_mesh_preview_strip.png}
+  \caption{S1--S4生成网格预览横向对比}
+  \label{fig:mesh-preview-strip}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{evaluation/phase8b_metrics_table.png}
+  \caption{冻结样例的指标表格图}
+  \label{fig:metrics-table}
+\end{figure}
+
+\clearpage
+\section{局限性与后续完善方向}
+
+本文实验揭示了当前系统仍需要继续完善的若干方面。
+
+第一，内部结构需要进一步验证。鞋履内部空间、鞋口厚度、鞋帮内侧和穿着腔体往往不在单视图草图中直接可见，模型只能根据训练先验进行补全。即使输出网格水密且外观合理，也不能直接说明内部结构符合真实鞋履设计。因此，本文在所有mesh report中保留内部结构风险提示，并将其作为后续三视图约束和结构先验设计的重点。
+
+第二，草图域适配仍需要提升设计保持能力。ControlNet能够将线稿转换为更接近产品渲染图的输入，但该过程可能引入与原草图不一致的材质、鞋带、纹理或局部轮廓。对于鞋履设计任务，生成图不应只追求视觉真实，还需要保持设计线条和比例关系。因此，后续需要使用鞋履草图和渲染图样例进一步优化提示词、控制强度和可能的领域微调策略。
+
+第三，三视图融合仍需要进一步完善。本文系统在数据组织和方法设计上保留了侧视图、俯视图和底视图输入方向，人工观察也表明多视图输入有助于改善鞋口和内部空腔表达。当前稳定闭环主要验证了单视图到三维模型的生成路径，后续工作需要把三视图约束更明确地接入后端输入、结果对齐和一致性评估中，使论文题目中的“三视图特征融合”得到更充分体现。
+
+第四，当前模型输出仍为网格资产，不是制造级CAD模型。GLB网格适合浏览器预览、论文展示和快速设计沟通，但不能直接替代鞋履工业建模中的参数化曲面、鞋楦匹配和结构约束。若要进入制造级应用，还需要引入曲面重建、拓扑规整、厚度约束和人工设计校验。
+
+第五，评价体系仍可继续扩展。本文当前采用阶段性冻结样例、定性观察和可复现网格指标相结合的评价方式，能够支撑系统闭环验证和后端路线比较。随着鞋履草图与真实三维模型配对数据的整理推进，后续可以引入Chamfer Distance、法向一致性、多视图轮廓一致性和设计师主观评分等指标，从而形成更系统的定量评价。
+
+\section{本章小结}
+
+本章基于冻结的S1至S4样例，对本文鞋履三维重建系统进行了实验分析。实验表明，当前系统能够在本地GPU上生成可加载的GLB模型；SF3D能够作为稳定基线和回退路线，ControlNet渲染输入能够改善SF3D直接线稿输入偏薄的问题；Hunyuan3D-2mini在鞋履外观级形状生成上优于SF3D基线，并成为本文当前主后端。与此同时，实验也表明，内部鞋履结构、三视图一致性和制造级几何质量仍需要进一步优化。上述结果为第六章的总结与未来工作提供了依据。

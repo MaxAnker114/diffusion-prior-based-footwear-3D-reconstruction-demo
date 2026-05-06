@@ -1,0 +1,79 @@
+% !TEX root = ../main.tex
+
+\chapter{项目补充材料}
+
+\section{代码结构说明}
+
+本附录补充说明本文原型系统的代码组织、演示运行方式和实验样例索引。正文第四章侧重介绍系统设计思想和关键模块，本附录则给出更接近复现实践的文件级说明，便于后续检查代码、复现实验和准备答辩演示。
+
+系统实现代码集中放置在\texttt{code/}目录下。各模块既可以被命令行流水线调用，也可以被Gradio界面间接复用。表\ref{tab:appendix-code-structure}给出了主要目录和功能说明。
+
+\begin{table}[htbp]
+  \centering
+  \caption{系统代码目录说明}
+  \label{tab:appendix-code-structure}
+  \small
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.58\textwidth}@{}}
+    \toprule
+    目录或文件 & 功能说明 \\
+    \midrule
+    \path{preprocess/} & 实现输入草图归一化、灰度化、二值化、Canny控制图和Scribble控制图生成，为直接重建和ControlNet渲染提供统一输入。 \\
+    \path{controlnet/} & 封装草图域适配流程，将线稿或边缘控制图转换为更接近产品渲染图的中间输入。 \\
+    \path{reconstruction/} & 封装Hunyuan3D-2mini shape-only推理，并保留SF3D基线后端的调用接口。 \\
+    \path{pipeline/} & 提供系统核心命令行入口，负责串联预处理、可选ControlNet、三维重建和网格报告生成。 \\
+    \path{postprocess/} & 读取生成的GLB模型，输出顶点数、面数、包围盒、厚度代理比例、水密性、体积和结构化风险提示。 \\
+    \path{ui/app.py} & Gradio演示界面入口，负责上传输入图像、设置参数、调用CLI流水线并展示生成模型和网格报告。 \\
+    \path{test_assets/} & 保存公开鞋履草图、三视图输入和用于系统验证的测试图像。 \\
+    \path{outputs/} & 保存运行生成的中间图像、GLB模型、摘要文件和网格报告。该目录主要用于本地实验追踪，通常不纳入版本控制。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{演示运行方式}
+
+本文系统的推荐运行方式是在WSL环境中激活对应的conda环境，然后从项目代码目录调用命令行流水线或Gradio界面。命令行流水线适合复现实验和批量生成固定样例，Gradio界面适合人工审阅和演示。
+
+命令行运行时，使用者需要指定输入图像、输入路径模式、三维重建后端和输出目录。典型调用形式如下：
+
+\begin{quote}
+\small
+\begin{verbatim}
+python code/pipeline/cli_mvp.py \
+  --input <image.png> --mode direct \
+  --backend hunyuan3d \
+  --output-dir code/outputs/pipeline_runs
+\end{verbatim}
+\end{quote}
+
+其中，\texttt{--mode}可以选择\texttt{direct}、\texttt{controlnet}或\texttt{both}。\texttt{direct}表示将预处理后的草图直接送入三维重建后端；\texttt{controlnet}表示先进行草图域适配再重建；\texttt{both}表示同时运行两条输入路径，便于横向对比。\texttt{--backend}可以选择\texttt{hunyuan3d}、\texttt{sf3d}或\texttt{both}，分别对应当前主后端、基线后端和双后端对照。
+
+Gradio界面通过\texttt{code/ui/app.py}启动。界面启动后，使用者可以上传鞋履草图或渲染图，选择输入路径和后端，并查看生成的GLB模型、网格指标表和结构风险提示。界面内部仍调用\texttt{cli\_mvp.py}，因此网页演示和命令行实验共享同一套后端逻辑。
+
+\section{实验样例索引}
+
+第五章实验采用冻结样例进行阶段性评价。冻结样例的目的不是覆盖全部鞋履类型，而是在论文写作和演示阶段提供可复现、可追溯的对照材料。表\ref{tab:appendix-eval-index}列出了本文使用的主要样例。
+
+\begin{table}[htbp]
+  \centering
+  \caption{冻结实验样例索引}
+  \label{tab:appendix-eval-index}
+  \small
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.1\textwidth}>{\raggedright\arraybackslash}p{0.2\textwidth}>{\raggedright\arraybackslash}p{0.2\textwidth}>{\raggedright\arraybackslash}p{0.38\textwidth}@{}}
+    \toprule
+    样例 & 后端 & 输入路径 & 说明 \\
+    \midrule
+    S1 & Hunyuan3D-2mini & 直接草图输入 & 主样例，验证单视图鞋履草图到GLB模型的完整生成闭环。 \\
+    S2 & Hunyuan3D-2mini & ControlNet渲染输入 & 用于观察草图域适配后，Hunyuan3D对外观细节和网格复杂度的响应。 \\
+    S3 & SF3D & 直接草图输入 & 基线样例，用于观察快速单图像重建在草图输入下的外形和厚度表现。 \\
+    S4 & SF3D & ControlNet渲染输入 & 基线对照样例，用于比较渲染图输入是否改善SF3D输出的体积感。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+论文中使用的主要实验图片包括三视图输入证据图、SF3D基线结果图、Hunyuan3D-2mini结果对比图、S1--S4综合对比图、生成网格预览横向对比图和冻结指标表格图。这些材料均由已保存的运行结果离线整理得到，不依赖重新运行模型生成，从而保证论文图表在修改阶段保持稳定。
+
+\section{可复现性与边界说明}
+
+为提高实验可复现性，系统在每次运行时为输出建立独立的运行目录，并保存输入副本、中间图像、生成模型、运行摘要和网格报告。运行摘要记录后端、输入路径、关键参数、耗时、显存记录和主要输出文件路径；网格报告记录顶点数、面数、包围盒、厚度代理比例、水密性、体积和结构化警告。第五章中的表格和截图均来自这些冻结输出。
+
+需要说明的是，本文当前输出主要面向设计展示和论文实验分析，生成结果为GLB网格模型，并非制造级CAD模型。自动网格指标可以辅助发现扁平化、碎片化、非水密和内部结构不可验证等风险，但不能单独证明鞋口内部空间、鞋帮厚度和穿着腔体完全符合真实鞋履结构。因此，本文将自动报告与人工视觉审阅结合使用，并把三视图融合、结构先验约束和更完整的数据集评价作为后续完善方向。

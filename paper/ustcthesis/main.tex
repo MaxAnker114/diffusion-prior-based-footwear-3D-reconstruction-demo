@@ -1,0 +1,43 @@
+% !TEX encoding = UTF-8
+% !TEX program = xelatex
+% !TEX spellcheck = en_US
+
+\documentclass[degree=bachelor,pdf]{ustcthesis}
+% degree      = doctor | master | bachelor
+% degree-type = academic | professional | engineering
+% language    = chinese | english
+% fontset     = windows | mac | ubuntu | fandol
+% review      = true | false  % 盲审模式
+
+% 加载宏包、全部的配置
+\input{ustcsetup}
+
+
+\begin{document}
+
+\maketitle
+\statement
+
+\frontmatter
+\include{chapters/abstract}
+\tableofcontents
+\listoffiguresandtables
+
+\mainmatter
+\include{chapters/chapter1_introduction}
+\include{chapters/chapter2_related_work}
+\include{chapters/chapter3_method}
+\include{chapters/chapter4_system_design}
+\include{chapters/chapter5_experiments}
+\include{chapters/chapter6_conclusion}
+
+\bibliography{bib/references}  % 参考文献使用 BibTeX 编译
+% \printbibliography       % 参考文献使用 BibLaTeX 编译
+
+\appendix
+\include{chapters/appendix}
+
+\backmatter
+\include{chapters/acknowledgements}
+
+\end{document}

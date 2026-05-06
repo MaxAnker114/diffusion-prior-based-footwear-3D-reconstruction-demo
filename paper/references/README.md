@@ -1,0 +1,24 @@
+# Literature Reference Baseline
+
+This folder keeps a compact, open-access literature baseline for the thesis and demo report. PDFs are downloaded only from arXiv/open-access sources; paywalled or unclear-license pages are kept out of the repository.
+
+Note: local PDFs under `papers/` are intentionally ignored by git to avoid bloating repository history. The committed source of truth for citation is `paper/ustcthesis/bib/references.bib` plus the arXiv links below.
+
+Generated on: 2026-05-06 10:05
+
+| Key | Topic | Title | arXiv | Local PDF | Why it matters |
+| --- | --- | --- | --- | --- | --- |
+| `mildenhall2020nerf` | Background | NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis | [2003.08934](https://arxiv.org/abs/2003.08934) | [mildenhall2020nerf_2003_08934.pdf](papers/mildenhall2020nerf_2003_08934.pdf) | NeRF baseline representation for novel view synthesis and 3D reconstruction context. |
+| `poole2022dreamfusion` | Background | DreamFusion: Text-to-3D using 2D Diffusion | [2209.14988](https://arxiv.org/abs/2209.14988) | [poole2022dreamfusion_2209_14988.pdf](papers/poole2022dreamfusion_2209_14988.pdf) | Text-to-3D optimization baseline using 2D diffusion priors. |
+| `zhang2023controlnet` | Sketch conditioning | Adding Conditional Control to Text-to-Image Diffusion Models | [2302.05543](https://arxiv.org/abs/2302.05543) | [zhang2023controlnet_2302_05543.pdf](papers/zhang2023controlnet_2302_05543.pdf) | Conditional control mechanism that motivates sketch/depth/edge guidance adaptation. |
+| `liu2023zero123` | Single image to 3D | Zero-1-to-3: Zero-shot One Image to 3D Object | [2303.11328](https://arxiv.org/abs/2303.11328) | [liu2023zero123_2303_11328.pdf](papers/liu2023zero123_2303_11328.pdf) | View-conditioned diffusion prior for single-image novel-view synthesis. |
+| `liu2023one2345` | Single image to 3D | One-2-3-45: Any Single Image to 3D Mesh in 45 Seconds without Per-Shape Optimization | [2306.16928](https://arxiv.org/abs/2306.16928) | [liu2023one2345_2306_16928.pdf](papers/liu2023one2345_2306_16928.pdf) | Single-image-to-3D pipeline connecting generated views with 3D reconstruction. |
+| `long2023wonder3d` | Single image to 3D | Wonder3D: Single Image to 3D using Cross-Domain Diffusion | [2310.15008](https://arxiv.org/abs/2310.15008) | [long2023wonder3d_2310_15008.pdf](papers/long2023wonder3d_2310_15008.pdf) | Cross-domain diffusion for consistent multi-view generation from one image. |
+| `liu2023one2345pp` | Single image to 3D | One-2-3-45++: Fast Single Image to 3D Objects with Consistent Multi-View Generation and 3D Diffusion | [2311.07885](https://arxiv.org/abs/2311.07885) | [liu2023one2345pp_2311_07885.pdf](papers/liu2023one2345pp_2311_07885.pdf) | Improved One-2-3-45 variant relevant to multi-view 3D asset generation. |
+| `tang2024lgm` | Feed-forward 3D | LGM: Large Multi-View Gaussian Model for High-Resolution 3D Content Creation | [2402.05054](https://arxiv.org/abs/2402.05054) | [tang2024lgm_2402_05054.pdf](papers/tang2024lgm_2402_05054.pdf) | Large multi-view Gaussian model for fast feed-forward 3D generation. |
+| `tochilkin2024triposr` | Feed-forward 3D | TripoSR: Fast 3D Object Reconstruction from a Single Image | [2403.02151](https://arxiv.org/abs/2403.02151) | [tochilkin2024triposr_2403_02151.pdf](papers/tochilkin2024triposr_2403_02151.pdf) | Fast feed-forward single-image 3D reconstruction baseline. |
+| `boss2024sf3d` | Project baseline | SF3D: Stable Fast 3D Mesh Reconstruction with UV-unwrapping and Illumination Disentanglement | [2408.00653](https://arxiv.org/abs/2408.00653) | [boss2024sf3d_2408_00653.pdf](papers/boss2024sf3d_2408_00653.pdf) | SF3D baseline already evaluated in this project. |
+| `hunyuan3d2025hunyuan3d2` | Project candidate | Hunyuan3D 2.0: Scaling Diffusion Models for High Resolution Textured 3D Assets Generation | [2501.12202](https://arxiv.org/abs/2501.12202) | [hunyuan3d2025hunyuan3d2_2501_12202.pdf](papers/hunyuan3d2025hunyuan3d2_2501_12202.pdf) | Hunyuan3D-2 family is the current preferred generation backend candidate. |
+| `wang2018pixel2mesh` | Mesh reconstruction | Pixel2Mesh: Generating 3D Mesh Models from Single RGB Images | [1804.01654](https://arxiv.org/abs/1804.01654) | [wang2018pixel2mesh_1804_01654.pdf](papers/wang2018pixel2mesh_1804_01654.pdf) | Classical mesh-generation baseline from a single RGB image. |
+| `gkioxari2019meshrcnn` | Mesh reconstruction | Mesh R-CNN | [1906.02739](https://arxiv.org/abs/1906.02739) | [gkioxari2019meshrcnn_1906_02739.pdf](papers/gkioxari2019meshrcnn_1906_02739.pdf) | Mesh R-CNN baseline for predicting 3D shapes from images. |
+| `sketch3d2025reconstruction` | Sketch input | 3D Reconstruction from Sketches | [2505.14621](https://arxiv.org/abs/2505.14621) | [sketch3d2025reconstruction_2505_14621.pdf](papers/sketch3d2025reconstruction_2505_14621.pdf) | Recent sketch-to-3D work useful for positioning designer-sketch inputs. |

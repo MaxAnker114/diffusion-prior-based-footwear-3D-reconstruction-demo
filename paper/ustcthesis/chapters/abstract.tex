@@ -1,0 +1,22 @@
+% !TEX root = ../main.tex
+
+\ustcsetup{
+  keywords  = {鞋履三维重建, 设计草图, 扩散模型, 多视图生成, Hunyuan3D},
+  keywords* = {Footwear 3D Reconstruction, Design Sketch, Diffusion Model, Multi-view Generation, Hunyuan3D},
+}
+
+\begin{abstract}
+  鞋履设计早期通常依赖单视图或三视图草图表达鞋面轮廓、鞋底结构和局部设计细节，但二维草图难以直接展示三维体积关系、鞋口空间和可旋转预览效果。传统三维建模流程依赖较多人工操作，迭代成本较高。随着图像到三维生成模型和扩散先验方法的发展，从设计草图快速生成可预览三维鞋履模型成为具有实际意义的研究方向。本文围绕“融合三视图特征的鞋履3D模型重建研究”这一课题，设计并实现了一个本地可运行的鞋履草图到三维网格模型原型系统。
+
+  在模型路线选择上，本文综合考虑开源可获得性、本地部署复杂度、显存可行性和生成结果质量，最终采用Hunyuan3D-2mini作为主要形状生成后端，并保留SF3D作为稳定基线和回退方案。针对设计草图与自然图像之间的域差异，本文引入ControlNet作为草图域适配模块，通过Canny控制图将线稿式鞋履草图转换为更接近产品渲染图的中间输入。系统实现上，本文构建了命令行流水线和Gradio演示界面，支持输入预处理、ControlNet渲染、Hunyuan3D/SF3D后端选择、GLB导出和非破坏式网格质量报告。
+
+  当前阶段的验证以冻结样例、人工审阅和网格报告为主，为后续更系统的数据集评测和模型优化提供初步依据。结果表明，Hunyuan3D-2mini能够在本地GPU环境下生成可加载GLB模型，单视图主样例输出96774个顶点和193544个面，峰值显存约为4436 MB；在三视图输入的人工观察中，该模型能够生成较完整的鞋履外形，并在一定程度上保留鞋口与内部空腔结构。ControlNet渲染输入能够改善SF3D直接线稿输入偏薄的问题。实验也表明，当前结果更适合作为外观级三维预览和论文演示原型，尚不能等同于可制造结构模型。本文最后总结了系统局限，并提出鞋履草图数据集建设、ControlNet领域适配、Hunyuan3D多视图/微调、内部结构先验和网格后处理等后续改进方向。
+\end{abstract}
+
+\begin{abstract*}
+  Footwear design sketches are widely used in early product design to describe silhouettes, sole structures, upper details, and local style elements from a single view or three orthographic views. However, two-dimensional drawings cannot directly present volume, shoe-opening space, or rotatable 3D previews. This thesis studies 3D shoe model reconstruction from design sketches and implements a locally runnable prototype system for sketch-to-mesh generation.
+
+  Considering open-source availability, local deployment cost, memory feasibility, and visual quality, the system adopts Hunyuan3D-2mini as the primary shape generation backend and keeps SF3D as a stable baseline and fallback. To reduce the domain gap between line-art sketches and product-like images, ControlNet is introduced as a sketch-domain adaptation module. The implemented pipeline supports preprocessing, optional ControlNet rendering, Hunyuan3D/SF3D backend selection, GLB export, non-destructive mesh reporting, and a Gradio demo interface.
+
+  The current evaluation is organized as an initial prototype validation with frozen samples, manual inspection, and mesh reports, providing a basis for later dataset-level evaluation and model optimization. The results show that Hunyuan3D-2mini can generate inspectable GLB models in a local GPU environment. The accepted single-view sample contains 96,774 vertices and 193,544 faces, with about 4,436 MB peak CUDA memory usage. Manual inspection also indicates that three-view input can produce a more complete shoe shape and preserve the shoe opening and internal cavity to some extent. The current results are suitable for exterior-level visualization and thesis demonstration, but they are not manufacturing-ready structural models. Future work includes footwear sketch dataset construction, ControlNet domain adaptation, Hunyuan3D multi-view fine-tuning, internal-structure priors, and mesh post-processing.
+\end{abstract*}

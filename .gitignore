@@ -51,6 +51,48 @@ third_party/
 # Generated paper parsing/rendering artifacts
 paper/rendered_pages/
 
+# Local literature PDFs
+# Keep downloaded references on disk, but avoid bloating git history with binary PDFs.
+paper/references/papers/*.pdf
+
+# LaTeX build artifacts
+.build/
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.glg
+*.glo
+*.gls
+*.hd
+*.idx
+*.ilg
+*.ind
+*.loa
+*.lof
+*.lot
+*.nlo
+*.nls
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.xdv
+
+# Unused USTC thesis template examples/docs
+paper/ustcthesis/chapters/achievements.tex
+paper/ustcthesis/chapters/citations.tex
+paper/ustcthesis/chapters/complementary.tex
+paper/ustcthesis/chapters/floats.tex
+paper/ustcthesis/chapters/innovations.tex
+paper/ustcthesis/chapters/intro.tex
+paper/ustcthesis/chapters/math.tex
+paper/ustcthesis/chapters/notation.tex
+paper/ustcthesis/ustcthesis-doc.pdf
+paper/ustcthesis/ustcthesis-doc.tex
+
 # OS/editor files
 .DS_Store
 Thumbs.db

@@ -1,0 +1,103 @@
+% !TEX root = ../main.tex
+
+\chapter{系统设计与实现}
+
+在第三章方法设计的基础上，本文实现了一个面向鞋履设计草图三维重建的本地原型系统。系统以WSL作为主要机器学习运行环境，以命令行流水线作为核心执行入口，并在其上构建Gradio演示界面。系统实现遵循模块化原则，将图像预处理、ControlNet草图域适配、三维重建后端调用、网格质量报告和用户界面分离，从而便于调试、对比实验和论文材料生成。本章介绍系统整体架构、运行环境、推理后端封装、网格报告模块以及Gradio演示界面的具体实现。
+
+\section{系统架构}
+
+本文系统采用分层架构，自上而下可以分为用户界面层、流水线编排层、图像处理层、三维重建层和网格分析层。用户界面层负责接收输入图像和参数，并展示生成结果；流水线编排层负责按照指定模式调用各个模块；图像处理层负责生成归一化图像和控制图；三维重建层负责调用Hunyuan3D或SF3D生成GLB模型；网格分析层负责读取GLB并生成可展示的质量报告。
+
+图\ref{fig:system-architecture-tree}从代码模块和运行路径两个角度展示了系统结构。该图只保留\texttt{code/}目录下与系统实现直接相关的模块，使预处理、ControlNet、三维后端、网格报告和Gradio界面围绕同一个CLI流水线组织。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.96\textwidth]{system/system_architecture_tree.png}
+  \caption{代码结构与系统运行架构树图}
+  \label{fig:system-architecture-tree}
+\end{figure}
+
+项目代码主要位于\texttt{code/}目录下，核心模块划分如下：
+
+\begin{itemize}
+  \item \texttt{code/preprocess/}：实现鞋履草图归一化、灰度化、二值化、Canny控制图和Scribble控制图生成；
+  \item \texttt{code/controlnet/}：实现基于ControlNet的草图到产品渲染图转换；
+  \item \texttt{code/reconstruction/}：实现Hunyuan3D shape-only推理封装；
+  \item \texttt{code/pipeline/}：实现端到端命令行流水线；
+  \item \texttt{code/postprocess/}：实现GLB网格质量报告；
+  \item \texttt{code/ui/}：实现Gradio演示界面；
+  \item \texttt{code/test\_assets/}：保存用于验证的公开鞋履草图或测试图像；
+  \item \texttt{code/outputs/}：保存运行时输出、中间结果和报告，该目录不进入版本控制。
+\end{itemize}
+
+系统的核心入口是\texttt{code/pipeline/cli\_mvp.py}。该命令行程序负责连接预处理、ControlNet、Hunyuan3D、SF3D和网格报告模块。Gradio界面并不重新实现模型推理逻辑，而是调用同一个CLI入口，因此命令行实验和界面演示共享一套后端流程。这种设计降低了重复实现带来的不一致风险，也方便将论文实验样例和演示结果统一管理。
+
+每次运行会生成一个独立的\texttt{run\_id}，所有中间图像、模型文件和报告都写入\texttt{code/outputs/pipeline\_runs/<run\_id>/}。典型输出包括预处理图像、ControlNet渲染图、Hunyuan3D或SF3D导出的GLB文件、\texttt{reports/summary.json}和\texttt{reports/mesh\_report.json}。这种按运行编号组织结果的方式能够保证实验可追溯，也便于后续从固定样例中选择论文截图和评价材料。
+
+\section{运行环境与依赖管理}
+
+本文系统的主要机器学习运行环境为WSL Ubuntu。选择WSL作为主运行环境有两个原因：一是PyTorch CUDA、xformers、diffusers以及Hunyuan3D等深度学习依赖在Linux环境下更容易复现；二是Windows侧可以继续作为文件管理、论文写作和Git操作环境，二者通过挂载后的共享项目目录交换代码、模型输出和论文素材。
+
+本项目使用多conda环境隔离不同模型后端，避免大型依赖互相冲突。主要环境包括：
+
+\begin{itemize}
+  \item 主控环境：包含Python 3.10、PyTorch CUDA、diffusers、ControlNet相关依赖和流水线基础依赖；
+  \item \texttt{hunyuan3d}：作为Hunyuan3D-2mini shape-only推理和Gradio界面运行环境；
+  \item \texttt{sf3d}：作为SF3D基线模型运行环境。
+\end{itemize}
+
+依赖验证阶段表明，当前机器的PyTorch CUDA栈能够正常调用GPU；\texttt{xformers}的0.0.27.post2版本可以导入并参与后续深度学习环境；diffusers中的ControlNet管线也完成了最小可用性检查。系统后端的最终选择主要依据本地部署可行性、GLB导出稳定性和鞋履样例视觉质量，而不是单纯追求模型规模。
+
+Hunyuan3D调用时设置了两个关键环境变量。\path{PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True}用于降低CUDA显存分配碎片带来的失败风险；\path{HF_HUB_OFFLINE=1}用于优先使用本地已经缓存的Hunyuan3D-2mini权重，避免重复联网检查导致推理过程停滞。纹理生成在当前系统中关闭，主要原因是纹理模块显存压力更高，而本文当前阶段的研究重点是鞋履形状生成和网格质量分析。
+
+\section{推理流水线与后端封装}
+
+CLI流水线支持两个维度的参数选择：输入路径和三维后端。输入路径由\texttt{--mode}指定，包括\texttt{direct}、\texttt{controlnet}和\texttt{both}三种模式。\texttt{direct}模式将归一化草图或输入图像直接送入三维重建后端；\texttt{controlnet}模式先生成ControlNet渲染图，再进行三维重建；\texttt{both}模式同时运行两条输入路径，用于比较草图直接输入和渲染图输入的结果差异。
+
+三维后端由\texttt{--backend}指定，包括\texttt{hunyuan3d}、\texttt{sf3d}和\texttt{both}三种选项。\texttt{hunyuan3d}是当前默认后端，调用Hunyuan3D-2mini进行shape-only推理；\texttt{sf3d}调用Stable Fast 3D基线；\texttt{both}同时运行两个后端，用于实验对照。通过这种双维度配置，系统可以覆盖“直接草图到Hunyuan3D”“ControlNet渲染图到Hunyuan3D”“直接草图到SF3D”“ControlNet渲染图到SF3D”等多种实验组合。
+
+CLI程序首先调用\texttt{preprocess\_sketch}函数生成归一化图像、灰度图、二值图、Canny控制图和Scribble控制图。若选择ControlNet路径，程序调用\path{code/controlnet/render_from_control.py}，将Canny控制图、提示词、控制强度、推理步数和随机种子传入扩散模型，生成中间渲染图。之后，CLI根据后端选择调用Hunyuan3D或SF3D，并在每个GLB生成后调用统一的网格报告函数。
+
+Hunyuan3D后端封装在\path{code/reconstruction/run_hunyuan3d_shape.py}和CLI中的\texttt{run\_hunyuan3d\_shape}调用逻辑中。该后端支持模型路径、子目录、权重精度、推理步数、octree resolution、分块数量和随机种子等参数。当前默认配置使用\path{tencent/Hunyuan3D-2mini}，子目录为\path{hunyuan3d-dit-v2-mini}，权重精度为\texttt{fp16}，默认推理步数为30，octree resolution为256。模型输出目录为\path{hunyuan3d/<input_path_name>/result/mesh.glb}。
+
+SF3D后端通过CLI中的\texttt{run\_sf3d}函数调用本地\path{code/third_party/stable-fast-3d}仓库。该后端在单独的\texttt{sf3d} conda环境中运行，输出目录保持SF3D原始结构，即\path{sf3d/<input_path_name>/0/mesh.glb}。本文保留SF3D原始输出结构，便于追踪模型本身的导出行为，同时在上层通过统一的mesh report格式消除不同后端之间的输出差异。
+
+为了提高报告的可读性，CLI不会把模型命令的完整标准输出和错误输出全部写入摘要文件，而是保存尾部片段、返回码和耗时信息。这样既能保留排错线索，又避免\texttt{summary.json}过大或包含大量无关日志。若某个子命令失败，CLI会抛出包含标准输出和错误输出的异常；在Gradio界面中，该异常会被转化为用户可读的错误提示。
+
+\section{网格报告模块}
+
+网格报告模块位于\path{code/postprocess/mesh_report.py}，是本文系统中连接生成结果和实验分析的重要组件。该模块使用trimesh加载GLB文件，支持读取\texttt{Scene}和\texttt{Trimesh}类型结果，并将不同后端生成的模型统一转换为JSON报告格式。该模块当前采用非破坏式策略，即只读取和分析网格，不执行默认修复、平滑或减面。
+
+报告内容分为文件级信息、几何级信息、聚合信息、展示摘要和结构化警告。文件级信息包括路径、文件是否存在和文件大小。几何级信息包括每个几何体的顶点数、面数、包围盒、表面积、水密性、欧拉数、体积和连通组件数量。聚合信息则汇总总几何数量、总顶点数、总面数、总体包围盒、总表面积、水密性和可用体积。
+
+为了便于Gradio界面和论文表格展示，模块额外生成\texttt{display\_summary}字段，将常用指标转换为“指标名-数值”的表格结构。当前展示指标包括几何体数量、顶点数、面数、连通组件数量、包围盒尺寸、厚度代理比例、表面积和体积。Gradio界面直接读取该字段并显示为表格，实验章节也可以从相同JSON中提取数据，避免手工转录造成不一致。
+
+结构化警告是网格报告模块的另一个关键设计。模块会根据文件缺失、空网格、厚度比例过小、连通组件过多和非水密等情况生成警告。例如，当包围盒最小维度与最长维度之比过低时，模块会提示模型可能存在扁平化问题；当连通组件数量过多时，模块会提示可能存在碎片化几何。除此之外，模块始终加入\texttt{internal\_structure\_not\_validated}警告，用于提醒用户自动指标不能验证鞋履内部结构的真实合理性。
+
+该模块的设计目标不是替代人工视觉审阅，而是为论文和演示提供可复现的辅助指标。尤其对于鞋履模型，外观轮廓合理并不意味着鞋口、内部空腔和鞋帮厚度合理。因此，网格报告只提供风险信号，最终质量判断仍需要结合三维预览、截图和人工观察。
+
+\section{Gradio演示界面}
+
+为了便于展示和人工审阅，本文在CLI流水线之上实现了Gradio界面，入口文件为\texttt{code/ui/app.py}。该界面采用轻量封装策略：界面负责文件上传、参数收集、进度展示和结果渲染，实际推理仍通过CLI执行。这样做可以保证命令行实验和网页演示使用同一套后端逻辑，避免出现“论文实验结果”和“演示系统结果”不一致的问题。
+
+图\ref{fig:gradio-ui-screenshot}展示了本文实现的Gradio演示界面。界面左侧集中放置输入图像、输入路径、三维后端和核心推理参数，右侧显示生成模型、导出文件、运行状态和网格报告，底部展示中间图像、指标表与警告表。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.96\textwidth]{system/gradio_ui_screenshot.png}
+  \caption{鞋履三维重建Gradio演示界面}
+  \label{fig:gradio-ui-screenshot}
+\end{figure}
+
+Gradio界面的输入区域包括单视图鞋履草图或渲染图上传控件、输入路径选择、三维后端选择、ControlNet提示词和核心控制参数、Hunyuan3D推理步数、octree resolution和随机种子。当前界面重点支持单视图MVP路径；三视图输入在数据组织和后续优化方向中保留，但尚未作为界面中的完成特性暴露。
+
+界面的输出区域包括生成的三维模型预览、GLB文件下载、\texttt{summary.json}文件、运行状态、中间图像预览、网格指标表和警告表。中间图像包括复制后的输入图像、归一化图像、Canny控制图以及ControlNet渲染图。三维模型预览使用Gradio的\texttt{Model3D}组件加载GLB文件，便于用户直接旋转查看生成结果。
+
+每次界面运行时，系统首先将用户上传的图像复制到\path{code/outputs/ui_uploads/<run_id>/}，然后调用CLI并等待其生成\texttt{summary.json}。界面读取摘要文件后，根据预设优先级选择最合适的mesh report展示。优先级依次为Hunyuan3D的ControlNet渲染路径、Hunyuan3D的直接路径、SF3D的ControlNet渲染路径和SF3D的直接路径。这样在运行\texttt{both}模式时，界面能够优先展示本文主路线结果，同时仍保留其他结果文件用于比较。
+
+界面已通过本地单视图路径验证。正式样例采用\texttt{direct + hunyuan3d}配置，Hunyuan3D推理步数为30，octree resolution为256，系统成功生成GLB模型、摘要文件和网格报告。该路径已经能够支持论文演示的基本需求：用户上传鞋履草图或渲染图，系统生成三维模型并显示网格指标和内部结构风险提示。
+
+\section{本章小结}
+
+本章介绍了本文鞋履三维重建原型系统的工程实现。系统以CLI流水线作为核心，分离了预处理、ControlNet适配、Hunyuan3D/SF3D后端调用和网格报告模块，并在其上构建了Gradio演示界面。该设计使系统既可以通过命令行进行可复现实验，也可以通过网页界面进行直观展示。与此同时，系统保留了明确的边界：当前默认路径为单视图输入到Hunyuan3D-2mini的shape-only生成，SF3D作为基线，三视图融合和几何修改式后处理仍属于后续扩展方向。
+
