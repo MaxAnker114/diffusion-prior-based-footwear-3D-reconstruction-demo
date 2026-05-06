@@ -1,0 +1,62 @@
+{
+  "phase": "8A",
+  "date": "2026-05-06",
+  "purpose": "Freeze paper/demo evaluation samples for the current single-view footwear reconstruction MVP.",
+  "notes": [
+    "Generated artifacts live under code/outputs and are intentionally ignored by Git.",
+    "S1 is the preferred current demo sample because it uses the accepted Gradio UI route.",
+    "S2 records the ControlNet-render-to-Hunyuan3D path.",
+    "S3 and S4 preserve SF3D comparison baselines.",
+    "Internal shoe structure is not validated by automatic metrics and remains a thesis limitation."
+  ],
+  "samples": [
+    {
+      "id": "S1",
+      "label": "Main UI Hunyuan3D sample from patent side-view sketch",
+      "run_id": "ui_20260505_214848",
+      "input": "code/outputs/ui_uploads/ui_20260505_214848/input.png",
+      "normalized": "code/outputs/pipeline_runs/ui_20260505_214848/preprocess/input_normalized.png",
+      "canny": "code/outputs/pipeline_runs/ui_20260505_214848/preprocess/input_canny_control.png",
+      "mesh": "code/outputs/pipeline_runs/ui_20260505_214848/hunyuan3d/direct_sketch/result/mesh.glb",
+      "summary": "code/outputs/pipeline_runs/ui_20260505_214848/reports/summary.json",
+      "backend": "hunyuan3d_2mini",
+      "path_mode": "direct",
+      "status": "accepted"
+    },
+    {
+      "id": "S2",
+      "label": "ControlNet-rendered input to Hunyuan3D",
+      "run_id": "phase5d_cli_hunyuan2mini_direct_render_offline",
+      "input": "code/outputs/controlnet_render/usd247201s_sport_shoe/right_side_canny_render_seed115.png",
+      "normalized": "code/outputs/pipeline_runs/phase5d_cli_hunyuan2mini_direct_render_offline/preprocess/right_side_canny_render_seed115_normalized.png",
+      "canny": "code/outputs/pipeline_runs/phase5d_cli_hunyuan2mini_direct_render_offline/preprocess/right_side_canny_render_seed115_canny_control.png",
+      "mesh": "code/outputs/pipeline_runs/phase5d_cli_hunyuan2mini_direct_render_offline/hunyuan3d/direct_sketch/result/mesh.glb",
+      "summary": "code/outputs/pipeline_runs/phase5d_cli_hunyuan2mini_direct_render_offline/reports/summary.json",
+      "backend": "hunyuan3d_2mini",
+      "path_mode": "direct",
+      "status": "accepted"
+    },
+    {
+      "id": "S3",
+      "label": "SF3D direct-sketch baseline",
+      "run_id": "phase4_cli_smoke_patent_side",
+      "input": "code/outputs/pipeline_runs/phase4_cli_smoke_patent_side/preprocess/right_side_fig4_clean_normalized.png",
+      "mesh": "code/outputs/pipeline_runs/phase4_cli_smoke_patent_side/sf3d/direct_sketch/0/mesh.glb",
+      "summary": "code/outputs/pipeline_runs/phase4_cli_smoke_patent_side/reports/summary.json",
+      "backend": "sf3d",
+      "path_mode": "direct",
+      "status": "baseline"
+    },
+    {
+      "id": "S4",
+      "label": "SF3D ControlNet-render baseline",
+      "run_id": "phase4_cli_smoke_patent_side",
+      "input": "code/outputs/pipeline_runs/phase4_cli_smoke_patent_side/controlnet/render.png",
+      "mesh": "code/outputs/pipeline_runs/phase4_cli_smoke_patent_side/sf3d/controlnet_render/0/mesh.glb",
+      "summary": "code/outputs/pipeline_runs/phase4_cli_smoke_patent_side/reports/summary.json",
+      "backend": "sf3d",
+      "path_mode": "controlnet",
+      "status": "baseline"
+    }
+  ]
+}

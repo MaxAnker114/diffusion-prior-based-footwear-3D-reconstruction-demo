@@ -1,0 +1,16 @@
+{
+  "phase": "8B",
+  "date": "2026-05-06",
+  "outputs": [
+    "screenshots/phase8b_comparison_grid.png",
+    "screenshots/phase8b_metrics_table.png",
+    "screenshots/phase8b_s1_mesh_preview.png",
+    "screenshots/phase8b_s1_sample_sheet.png",
+    "screenshots/phase8b_s2_mesh_preview.png",
+    "screenshots/phase8b_s2_sample_sheet.png",
+    "screenshots/phase8b_s3_mesh_preview.png",
+    "screenshots/phase8b_s3_sample_sheet.png",
+    "screenshots/phase8b_s4_mesh_preview.png",
+    "screenshots/phase8b_s4_sample_sheet.png"
+  ]
+}
